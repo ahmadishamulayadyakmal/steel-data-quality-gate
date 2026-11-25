@@ -1,5 +1,5 @@
-# Machine-readable inventory of datasets.
-# Populated in W05-W06; `metalkit` will read this file starting in E02.
+# Machine-readable inventory of datasets used by this case.
+# `metalkit` reads this file when a dataset loader is added.
 version: 1
 updated: 2026-11-24
 datasets: []
