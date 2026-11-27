@@ -48,12 +48,30 @@ jobs:
           print("README sections and CITATION.cff: OK")
           PY
 
-      - name: Python tests (when present)
-        shell: bash
-        run: |
-          if find tests -name 'test_*.py' -type f 2>/dev/null | grep -q .; then
-            python -m pip install --quiet pytest
-            python -m pytest -q
-          else
-            echo "No Python tests in this repository yet."
-          fi
+  test:
+    name: Python tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create conda environment from environment.yml
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environment.yml
+          init-shell: bash
+          cache-environment: true
+
+      - name: Install steelgate in editable mode
+        run: python -m pip install --no-deps -e .
+
+      - name: Run pytest suite
+        run: python -m pytest -v

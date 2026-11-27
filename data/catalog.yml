@@ -1,5 +1,79 @@
-# Machine-readable inventory of datasets used by this case.
-# `metalkit` reads this file when a dataset loader is added.
+# Machine-readable inventory of datasets used by Case 02.
+# `steelgate.loaders.load_catalog` validates this inventory at runtime.
 version: 1
-updated: 2026-11-24
-datasets: []
+updated: 2026-11-27
+evidence_level: A
+datasets:
+  - id: D01
+    name: uci_steel_plates_faults
+    title: UCI Steel Plates Faults
+    file: steel_plates_faults.zip
+    url: https://archive.ics.uci.edu/static/public/198/steel+plates+faults.zip
+    catalog_url: https://archive.ics.uci.edu/dataset/198/steel+plates+faults
+    doi: 10.24432/C5J88N
+    license: CC BY 4.0
+    access_date: "2026-11-27"
+    sha256: cb8eb9859198b63f053e443513036b401746fa517ef58bd17c846c6741c93919
+    bytes: 100890
+    n_rows: 1941
+    n_features: 27
+    n_targets: 7
+    schema: uci_steel_plates_v1
+    fault_classes:
+      - Pastry
+      - Z_Scratch
+      - K_Scatch
+      - Stains
+      - Dirtiness
+      - Bumps
+      - Other_Faults
+    canonical_units:
+      X_Minimum: pixel
+      X_Maximum: pixel
+      Y_Minimum: pixel
+      Y_Maximum: pixel
+      Pixels_Areas: pixel^2
+      X_Perimeter: pixel
+      Y_Perimeter: pixel
+      Sum_of_Luminosity: intensity*pixel^2
+      Minimum_of_Luminosity: intensity
+      Maximum_of_Luminosity: intensity
+      Length_of_Conveyer: pixel
+      Steel_Plate_Thickness: mm
+      Edges_Index: dimensionless
+      Empty_Index: dimensionless
+      Square_Index: dimensionless
+      Outside_X_Index: dimensionless
+      Edges_X_Index: dimensionless
+      Edges_Y_Index: dimensionless
+      Outside_Global_Index: dimensionless
+      LogOfAreas: log10(pixel^2)
+      Log_X_Index: log10(pixel)
+      Log_Y_Index: log10(pixel)
+      Orientation_Index: dimensionless
+      Luminosity_Index: dimensionless
+      SigmoidOfAreas: dimensionless
+    notes: >-
+      Raw D01 has 1,941 rows. Unmodified rows 518 and 591 violate physical
+      luminosity conservation (Sum_of_Luminosity < Pixels_Areas * Minimum_of_Luminosity);
+      curated D01 contains 1,939 rows passing all 38 schema and physical rules.
+
+  - id: D02
+    name: neu_det_surface_defects
+    title: NEU-DET Surface Defect Database
+    status: mirror_licence_unverified
+    raw_bundled: false
+    license: Mirror-dependent; requires explicit verification before mirror ingestion
+    access_date: "2026-11-27"
+    schema: neu_det_manifest_v1
+    image_shape: [200, 200]
+    classes:
+      - crazing
+      - inclusion
+      - patches
+      - pitted_surface
+      - rolled-in_scale
+      - scratches
+    notes: >-
+      Metadata-only camera inspection contract. No raw NEU-DET imagery is
+      redistributed or committed in this repository.

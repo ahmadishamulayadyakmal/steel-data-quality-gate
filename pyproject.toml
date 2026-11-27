@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "steelgate"
+version = "0.4.0"
+description = "Schema-enforced data quality gate, pint unit normalization, and leakage detection for open steel inspection datasets (Case 02)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Ahmad Ishamul Ayady Akmal", email = "ishamulayadyakmal@gmail.com" },
+]
+keywords = ["metallurgy", "data-quality", "pandera", "pint", "reproducibility"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy==2.1.3",
+  "pandas==2.2.3",
+  "scipy==1.14.1",
+  "scikit-learn==1.5.2",
+  "joblib==1.4.2",
+  "threadpoolctl==3.5.0",
+  "pandera>=0.18",
+  "pint>=0.23",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+]
+
+[project.scripts]
+steelgate = "steelgate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

@@ -1,0 +1,38 @@
+{
+  "case": "C02",
+  "catalog_version": 1,
+  "code_fingerprint": "9555b6657b51101ae6cc6a0b95694efdae91a02e5115f23d744cf60b1ce0e4b9",
+  "datasets": {
+    "D01": {
+      "bytes": 100890,
+      "doi": "10.24432/C5J88N",
+      "file": "steel_plates_faults.zip",
+      "id": "D01",
+      "license": "CC BY 4.0",
+      "sha256": "cb8eb9859198b63f053e443513036b401746fa517ef58bd17c846c6741c93919",
+      "url": "https://archive.ics.uci.edu/static/public/198/steel+plates+faults.zip"
+    }
+  },
+  "determinism_check": true,
+  "environment": {
+    "packages": {
+      "PyYAML": "6.0.2",
+      "joblib": "1.4.2",
+      "numpy": "2.1.3",
+      "pandas": "2.2.3",
+      "pandera": "0.20.3",
+      "pint": "0.24.4",
+      "pytest": "8.3.4",
+      "scikit-learn": "1.5.2",
+      "scipy": "1.14.1",
+      "threadpoolctl": "3.5.0"
+    },
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10"
+  },
+  "evidence_level": "A",
+  "synthetic_experiments": [
+    "corrupt_copy_rejection (synthetic mill corruption of open D01)",
+    "before_after_benchmark (synthetic mill corruption of D01 training splits; evaluated on clean untouched D01 test splits)"
+  ]
+}
