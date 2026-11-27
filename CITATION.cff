@@ -2,11 +2,11 @@ cff-version: 1.2.0
 title: Steel Data Quality Gate (Case 02)
 message: If you use this software, please cite it.
 type: software
-version: 0.4.0
+version: 0.7.0
 date-released: 2026-11-27
 license: MIT
 authors:
   - family-names: Akmal
     given-names: Ahmad Ishamul Ayady
 abstract: >-
-  Open-data metallurgy case study: Schema-enforced data quality gate, Pint unit normalization, and leakage detection for steel plate inspection records (Case 02).
+  Open-data metallurgy case study: Multi-database schema-enforced data quality gate (64 Pandera & physics rules across 37,293 records), Pint unit normalization, and leakage detection (Case 02).

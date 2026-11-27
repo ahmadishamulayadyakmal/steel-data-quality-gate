@@ -1,4 +1,4 @@
-"""Pandera schema contracts (38 UCI rules + NEU-DET camera manifest) for Case 02."""
+"""Pandera schema contracts (64 steel rules across D01/D04/D09 + D02 camera manifest)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,12 @@ import numpy as np
 import pandas as pd
 import pandera as pa
 
-from steelgate.loaders import UCI_ALL_COLUMNS, UCI_FAULT_COLUMNS, UCI_FEATURE_COLUMNS
+from steelgate.loaders import (
+    D09_ENERGY_COLUMNS,
+    UCI_ALL_COLUMNS,
+    UCI_FAULT_COLUMNS,
+)
+from steelgate.units import parse_formula_to_at_pct
 
 NEU_DET_CLASSES: tuple[str, ...] = (
     "crazing",
@@ -20,7 +25,10 @@ NEU_DET_CLASSES: tuple[str, ...] = (
     "scratches",
 )
 
-_BINARY_COLS = ("TypeOfSteel_A300", "TypeOfSteel_A400") + UCI_FAULT_COLUMNS
+D04_COLUMNS: tuple[str, ...] = ("id", "composition", "yield_strength_mpa")
+D09_LOAD_TYPES: tuple[str, ...] = ("Light_Load", "Medium_Load", "Maximum_Load")
+D09_WEEK_STATUSES: tuple[str, ...] = ("Weekday", "Weekend")
+
 _UNIT_INTERVAL_COLS = (
     "Edges_Index",
     "Empty_Index",
@@ -33,7 +41,7 @@ _UNIT_INTERVAL_COLS = (
 
 
 class QualityGateRejectionError(ValueError):
-    """Raised when an ingested dataset fails the Pandera/physical quality gate."""
+    """Raised when an ingested dataset fails a Pandera/physical quality gate."""
 
     def __init__(self, report: dict[str, Any]) -> None:
         self.report = report
@@ -347,6 +355,178 @@ UCI_QUALITY_RULES: tuple[QualityRule, ...] = (
 )
 
 
+# ---------------------------------------------------------------------------
+# D04: MatBench Steels Rules (M01-M12)
+# ---------------------------------------------------------------------------
+
+def _parse_d04_formulas(df: pd.DataFrame) -> list[tuple[dict[str, float] | None, float | None]]:
+    out: list[tuple[dict[str, float] | None, float | None]] = []
+    if "composition" not in df.columns:
+        return [(None, None)] * len(df)
+    for raw in df["composition"].tolist():
+        if raw is None or (isinstance(raw, float) and np.isnan(raw)):
+            out.append((None, None))
+            continue
+        try:
+            comp, rsum = parse_formula_to_at_pct(str(raw))
+            out.append((comp, rsum))
+        except ValueError:
+            out.append((None, None))
+    return out
+
+
+def _d04_id_valid(df: pd.DataFrame) -> pd.Series:
+    if "id" not in df.columns:
+        return pd.Series(False, index=df.index, dtype="bool")
+    s = df["id"]
+    return s.notna() & (s.astype(str).str.strip().str.len() > 0) & (~s.astype(str).duplicated(keep="first"))
+
+
+def _d04_formula_ok(df: pd.DataFrame) -> pd.Series:
+    parsed = _parse_d04_formulas(df)
+    return pd.Series([comp is not None for comp, _ in parsed], index=df.index, dtype="bool")
+
+
+def _d04_fe_base(df: pd.DataFrame) -> pd.Series:
+    parsed = _parse_d04_formulas(df)
+    return pd.Series([bool(comp is not None and comp.get("Fe", 0.0) >= 50.0) for comp, _ in parsed], index=df.index, dtype="bool")
+
+
+def _d04_carbon_bound(df: pd.DataFrame) -> pd.Series:
+    parsed = _parse_d04_formulas(df)
+    return pd.Series([bool(comp is not None and comp.get("C", 0.0) <= 15.0) for comp, _ in parsed], index=df.index, dtype="bool")
+
+
+def _d04_multicomponent(df: pd.DataFrame) -> pd.Series:
+    parsed = _parse_d04_formulas(df)
+    return pd.Series([bool(comp is not None and len(comp) >= 2) for comp, _ in parsed], index=df.index, dtype="bool")
+
+
+def _d04_no_exact_dups(df: pd.DataFrame) -> pd.Series:
+    if "composition" not in df.columns or "yield_strength_mpa" not in df.columns:
+        return pd.Series(False, index=df.index, dtype="bool")
+    return ~df.duplicated(subset=["composition", "yield_strength_mpa"], keep="first")
+
+
+def _d04_stoich_sum_unity(df: pd.DataFrame) -> pd.Series:
+    parsed = _parse_d04_formulas(df)
+    return pd.Series([bool(rsum is not None and abs(rsum - 1.0) <= 1e-3) for _, rsum in parsed], index=df.index, dtype="bool")
+
+
+D04_QUALITY_RULES: tuple[QualityRule, ...] = (
+    QualityRule("M01", "Tier 1", "Domain & Nulls", "Unique non-null alloy ID", "id is non-null string without duplicates", _d04_id_valid),
+    QualityRule("M02", "Tier 1", "Formula Syntax", "Valid chemical formula string", "composition is non-null and syntactically parseable", _d04_formula_ok),
+    QualityRule("M03", "Tier 1", "Alloy Chemistry", "Known IUPAC steel elements", "All parsed elements exist in IUPAC ATOMIC_WEIGHTS", _d04_formula_ok),
+    QualityRule("M04", "Tier 1", "Alloy Chemistry", "Positive finite stoichiometric coefficients", "All parsed elemental coefficients are finite and > 0", _d04_formula_ok),
+    QualityRule("M05", "Tier 1", "Metallurgy Physics", "Fe-base steel domain", "Iron (Fe) atomic fraction >= 50.0 at%", _d04_fe_base),
+    QualityRule("M06", "Tier 1", "Metallurgy Physics", "Carbon solubility ceiling", "Carbon (C) atomic fraction <= 15.0 at%", _d04_carbon_bound),
+    QualityRule("M07", "Tier 1", "Metallurgy Physics", "Multicomponent steel alloy", "At least 2 alloying elements present", _d04_multicomponent),
+    QualityRule("M08", "Tier 1", "Domain & Nulls", "Yield strength finite numeric", "yield_strength_mpa is finite and non-null", _finite_ge("yield_strength_mpa", -1e9)),
+    QualityRule("M09", "Tier 1", "Unit & Range", "Yield strength lower bound", "yield_strength_mpa >= 100.0 MPa", _finite_ge("yield_strength_mpa", 100.0)),
+    QualityRule("M10", "Tier 1", "Unit & Range", "Yield strength upper bound", "yield_strength_mpa <= 3000.0 MPa", _finite_between("yield_strength_mpa", 100.0, 3000.0)),
+    QualityRule("M11", "Tier 1", "Duplicate Control", "No duplicate (composition, strength)", "Unique (composition, yield_strength_mpa) rows", _d04_no_exact_dups),
+    QualityRule("M12", "Tier 2", "Stoichiometric Conservation", "Raw formula fraction sum == 1.0", "|sum(raw_formula_fractions) - 1.0| <= 1e-3 (catches 6 raw D04 rows)", _d04_stoich_sum_unity),
+)
+
+
+# ---------------------------------------------------------------------------
+# D09: UCI Steel Industry Energy Time-Series Rules (E01-E14)
+# ---------------------------------------------------------------------------
+
+def _d09_parsed_dt(df: pd.DataFrame) -> pd.Series:
+    if "date" not in df.columns:
+        return pd.Series(pd.NaT, index=df.index)
+    return pd.to_datetime(df["date"], format="%d/%m/%Y %H:%M", errors="coerce")
+
+
+def _d09_no_nulls(df: pd.DataFrame) -> pd.Series:
+    missing = [c for c in D09_ENERGY_COLUMNS if c not in df.columns]
+    if missing:
+        return pd.Series(False, index=df.index, dtype="bool")
+    return df.loc[:, list(D09_ENERGY_COLUMNS)].notna().all(axis=1)
+
+
+def _d09_valid_dt(df: pd.DataFrame) -> pd.Series:
+    return _d09_parsed_dt(df).notna()
+
+
+def _d09_unique_dt(df: pd.DataFrame) -> pd.Series:
+    dt = _d09_parsed_dt(df)
+    return dt.notna() & (~dt.duplicated(keep="first"))
+
+
+def _d09_nsm_valid(df: pd.DataFrame) -> pd.Series:
+    nsm = _num_series(df, "NSM")
+    return np.isfinite(nsm) & (nsm >= 0.0) & (nsm <= 86400.0) & ((nsm % 900.0) == 0.0)
+
+
+def _d09_nsm_matches_dt(df: pd.DataFrame) -> pd.Series:
+    dt = _d09_parsed_dt(df)
+    nsm = _num_series(df, "NSM")
+    valid = dt.notna() & np.isfinite(nsm)
+    out = pd.Series(False, index=df.index, dtype="bool")
+    expected = dt.loc[valid].dt.hour * 3600.0 + dt.loc[valid].dt.minute * 60.0
+    out.loc[valid] = np.abs(nsm.loc[valid] - expected) <= 1e-6
+    return out
+
+
+def _d09_calendar_consistent(df: pd.DataFrame) -> pd.Series:
+    dt = _d09_parsed_dt(df)
+    if "WeekStatus" not in df.columns or "Day_of_week" not in df.columns:
+        return pd.Series(False, index=df.index, dtype="bool")
+    ws = df["WeekStatus"].astype(str).str.strip()
+    dow = df["Day_of_week"].astype(str).str.strip()
+    valid = dt.notna() & ws.isin(D09_WEEK_STATUSES)
+    out = pd.Series(False, index=df.index, dtype="bool")
+    dt_dow = dt.loc[valid].dt.day_name()
+    is_wknd = dt_dow.isin(["Saturday", "Sunday"])
+    out.loc[valid] = (dow.loc[valid] == dt_dow) & ((ws.loc[valid] == "Weekend") == is_wknd)
+    return out
+
+
+def _d09_load_type_valid(df: pd.DataFrame) -> pd.Series:
+    if "Load_Type" not in df.columns:
+        return pd.Series(False, index=df.index, dtype="bool")
+    return df["Load_Type"].astype(str).str.strip().isin(D09_LOAD_TYPES)
+
+
+def _d09_pf_physics(df: pd.DataFrame) -> pd.Series:
+    p = _num_series(df, "Usage_kWh")
+    q = _num_series(df, "Lagging_Current_Reactive.Power_kVarh")
+    pf = _num_series(df, "Lagging_Current_Power_Factor")
+    valid_num = np.isfinite(p) & np.isfinite(q) & np.isfinite(pf) & (p >= 0.0) & (q >= 0.0)
+    out = pd.Series(False, index=df.index, dtype="bool")
+    active = valid_num & (p > 0.0) & (q > 0.0)
+    passive = valid_num & ~active
+    out.loc[passive] = True
+    with np.errstate(divide="ignore", invalid="ignore"):
+        calc = 100.0 * p[active] / np.sqrt(p[active] ** 2 + q[active] ** 2)
+    out.loc[active] = np.abs(pf[active] - calc) <= 0.01
+    return out
+
+
+D09_QUALITY_RULES: tuple[QualityRule, ...] = (
+    QualityRule("E01", "Tier 1", "Domain & Nulls", "Complete 11-column telemetry row", "All 11 D09 telemetry columns present and non-null", _d09_no_nulls),
+    QualityRule("E02", "Tier 1", "Timestamp Integrity", "Valid 15-min timestamp format", "date parses cleanly as %d/%m/%Y %H:%M", _d09_valid_dt),
+    QualityRule("E03", "Tier 1", "Duplicate Control", "Unique 15-min timestamps", "No duplicate timestamps in plant energy stream", _d09_unique_dt),
+    QualityRule("E04", "Tier 1", "Unit & Range", "Active energy Usage_kWh bounds", "Usage_kWh finite in [0.0, 500.0] kWh", _finite_between("Usage_kWh", 0.0, 500.0)),
+    QualityRule("E05", "Tier 1", "Domain & Nulls", "Lagging reactive power non-negative", "Lagging_Current_Reactive.Power_kVarh >= 0.0", _finite_ge("Lagging_Current_Reactive.Power_kVarh", 0.0)),
+    QualityRule("E06", "Tier 1", "Domain & Nulls", "Leading reactive power non-negative", "Leading_Current_Reactive_Power_kVarh >= 0.0", _finite_ge("Leading_Current_Reactive_Power_kVarh", 0.0)),
+    QualityRule("E07", "Tier 1", "Domain & Nulls", "CO2 emissions non-negative", "CO2(tCO2) finite and >= 0.0", _finite_ge("CO2(tCO2)", 0.0)),
+    QualityRule("E08", "Tier 1", "Electrical Bounds", "Lagging power factor [0, 100]%", "Lagging_Current_Power_Factor in [0.0, 100.0]", _finite_between("Lagging_Current_Power_Factor", 0.0, 100.0)),
+    QualityRule("E09", "Tier 1", "Electrical Bounds", "Leading power factor [0, 100]%", "Leading_Current_Power_Factor in [0.0, 100.0]", _finite_between("Leading_Current_Power_Factor", 0.0, 100.0)),
+    QualityRule("E10", "Tier 1", "Timestamp Integrity", "15-min NSM grid cadence", "NSM in [0, 86400] and divisible by 900 s", _d09_nsm_valid),
+    QualityRule("E11", "Tier 1", "Timestamp Integrity", "NSM matches timestamp clock", "NSM == hour*3600 + minute*60", _d09_nsm_matches_dt),
+    QualityRule("E12", "Tier 1", "Calendar Integrity", "WeekStatus & Day_of_week consistency", "Day_of_week and WeekStatus match parsed date", _d09_calendar_consistent),
+    QualityRule("E13", "Tier 1", "Domain & Nulls", "Valid mill Load_Type enum", "Load_Type in {Light_Load, Medium_Load, Maximum_Load}", _d09_load_type_valid),
+    QualityRule("E14", "Tier 2", "Electrical Physics", "AC power factor PF = 100*P/sqrt(P^2+Q^2)", "|Lagging_PF - 100*P/sqrt(P^2+Q^2)| <= 0.01 where P,Q > 0", _d09_pf_physics),
+)
+
+
+# ---------------------------------------------------------------------------
+# Shared Pandera Schema Builders & Validator Engine
+# ---------------------------------------------------------------------------
+
 def _df_check(rule: QualityRule) -> pa.Check:
     return pa.Check(
         rule.mask_fn,
@@ -370,19 +550,31 @@ def build_uci_schema(*, strict_physical: bool = True) -> pa.DataFrameSchema:
         )
         for col in UCI_ALL_COLUMNS
     }
-    active_rules = [
-        rule for rule in UCI_QUALITY_RULES if strict_physical or rule.tier != "Tier 2"
-    ]
-    return pa.DataFrameSchema(
-        columns=columns,
-        checks=[_df_check(rule) for rule in active_rules],
-        strict=True,
-        coerce=False,
-    )
+    active_rules = [r for r in UCI_QUALITY_RULES if strict_physical or r.tier != "Tier 2"]
+    return pa.DataFrameSchema(columns=columns, checks=[_df_check(r) for r in active_rules], strict=True, coerce=False)
+
+
+def build_d04_schema(*, strict_physical: bool = True) -> pa.DataFrameSchema:
+    """Build the Pandera ``DataFrameSchema`` for MatBench ``matbench_steels`` (11 or 12 rules)."""
+    columns = {
+        "id": pa.Column(nullable=False),
+        "composition": pa.Column(nullable=False),
+        "yield_strength_mpa": pa.Column(nullable=False),
+    }
+    active_rules = [r for r in D04_QUALITY_RULES if strict_physical or r.tier != "Tier 2"]
+    return pa.DataFrameSchema(columns=columns, checks=[_df_check(r) for r in active_rules], strict=True, coerce=False)
+
+
+def build_d09_schema(*, strict_physical: bool = True) -> pa.DataFrameSchema:
+    """Build the Pandera ``DataFrameSchema`` for UCI Steel Energy D09 (13 or 14 rules)."""
+    columns = {col: pa.Column(nullable=False) for col in D09_ENERGY_COLUMNS}
+    active_rules = [r for r in D09_QUALITY_RULES if strict_physical or r.tier != "Tier 2"]
+    return pa.DataFrameSchema(columns=columns, checks=[_df_check(r) for r in active_rules], strict=True, coerce=False)
 
 
 def _format_error_report(
     *,
+    dataset_label: str,
     rows_checked: int,
     rows_passing: int,
     rows_failing: int,
@@ -392,7 +584,7 @@ def _format_error_report(
     pandera_error_count: int,
 ) -> str:
     lines = [
-        "=== STEELGATE QUALITY REPORT ===",
+        f"=== STEELGATE QUALITY REPORT ({dataset_label}) ===",
         f"Rows checked: {rows_checked} | Passing: {rows_passing} | Failing: {rows_failing}",
         f"Pandera lazy schema errors recorded: {pandera_error_count}",
     ]
@@ -415,9 +607,15 @@ def _format_error_report(
     return "\n".join(lines)
 
 
-def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
-    """Validate a DataFrame against all active Pandera & physical rules without mutating it."""
-    schema = build_uci_schema(strict_physical=strict_physical)
+def _run_rule_validation(
+    df: pd.DataFrame,
+    *,
+    dataset_label: str,
+    schema: pa.DataFrameSchema,
+    expected_cols: tuple[str, ...],
+    rules: tuple[QualityRule, ...],
+    strict_physical: bool,
+) -> dict[str, Any]:
     pandera_error_count = 0
     try:
         schema.validate(df, lazy=True)
@@ -426,11 +624,9 @@ def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dic
     except pa.errors.SchemaError as exc:
         pandera_error_count = int(len(exc.failure_cases)) if exc.failure_cases is not None else 1
 
-    missing_cols = [c for c in UCI_ALL_COLUMNS if c not in df.columns]
-    extra_cols = [str(c) for c in df.columns if c not in UCI_ALL_COLUMNS]
-    active_rules = [
-        rule for rule in UCI_QUALITY_RULES if strict_physical or rule.tier != "Tier 2"
-    ]
+    missing_cols = [c for c in expected_cols if c not in df.columns]
+    extra_cols = [str(c) for c in df.columns if c not in expected_cols]
+    active_rules = [r for r in rules if strict_physical or r.tier != "Tier 2"]
 
     overall_pass_mask = pd.Series(True, index=df.index, dtype="bool")
     if missing_cols or extra_cols:
@@ -468,12 +664,12 @@ def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dic
         and rules_failed == 0
         and pandera_error_count == 0
     )
-
     failing_indices = [
         int(i) if isinstance(i, (int, np.integer)) else str(i)
         for i in df.index[~overall_pass_mask].tolist()
     ]
     error_report = _format_error_report(
+        dataset_label=dataset_label,
         rows_checked=rows_checked,
         rows_passing=rows_passing,
         rows_failing=rows_failing,
@@ -482,8 +678,8 @@ def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dic
         rule_results=rule_results,
         pandera_error_count=pandera_error_count,
     )
-
     return {
+        "dataset": dataset_label,
         "passed": bool(passed),
         "strict_physical": bool(strict_physical),
         "total_rules": len(rule_results),
@@ -503,9 +699,61 @@ def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dic
     }
 
 
+def validate_uci_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
+    """Validate UCI Steel Plates Faults (D01) against all active Pandera & physical rules."""
+    return _run_rule_validation(
+        df,
+        dataset_label="D01 (UCI Steel Plates Faults)",
+        schema=build_uci_schema(strict_physical=strict_physical),
+        expected_cols=UCI_ALL_COLUMNS,
+        rules=UCI_QUALITY_RULES,
+        strict_physical=strict_physical,
+    )
+
+
 def validate_or_reject(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
-    """Validate ``df`` and raise ``QualityGateRejectionError`` if any check fails."""
+    """Validate UCI D01 and raise ``QualityGateRejectionError`` if any check fails."""
     report = validate_uci_frame(df, strict_physical=strict_physical)
+    if not report["passed"]:
+        raise QualityGateRejectionError(report)
+    return report
+
+
+def validate_d04_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
+    """Validate MatBench ``matbench_steels`` (D04) against rules ``M01``-``M12``."""
+    return _run_rule_validation(
+        df,
+        dataset_label="D04 (MatBench Steels)",
+        schema=build_d04_schema(strict_physical=strict_physical),
+        expected_cols=D04_COLUMNS,
+        rules=D04_QUALITY_RULES,
+        strict_physical=strict_physical,
+    )
+
+
+def validate_d04_or_reject(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
+    """Validate D04 and raise ``QualityGateRejectionError`` if any check fails."""
+    report = validate_d04_frame(df, strict_physical=strict_physical)
+    if not report["passed"]:
+        raise QualityGateRejectionError(report)
+    return report
+
+
+def validate_d09_frame(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
+    """Validate UCI Steel Energy (D09) against rules ``E01``-``E14``."""
+    return _run_rule_validation(
+        df,
+        dataset_label="D09 (UCI Steel Energy)",
+        schema=build_d09_schema(strict_physical=strict_physical),
+        expected_cols=D09_ENERGY_COLUMNS,
+        rules=D09_QUALITY_RULES,
+        strict_physical=strict_physical,
+    )
+
+
+def validate_d09_or_reject(df: pd.DataFrame, *, strict_physical: bool = True) -> dict[str, Any]:
+    """Validate D09 and raise ``QualityGateRejectionError`` if any check fails."""
+    report = validate_d09_frame(df, strict_physical=strict_physical)
     if not report["passed"]:
         raise QualityGateRejectionError(report)
     return report

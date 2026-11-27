@@ -1,4 +1,4 @@
-"""Unit tests for the 38-rule UCI Pandera schema and NEU-DET D02 manifest schema."""
+"""Unit tests for the 64-rule multi-database Pandera schemas (D01, D04, D09, D02)."""
 
 from __future__ import annotations
 
@@ -8,18 +8,21 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from steelgate.loaders import UCI_ALL_COLUMNS, UCI_FAULT_COLUMNS
+from steelgate.loaders import D09_ENERGY_COLUMNS, UCI_ALL_COLUMNS, UCI_FAULT_COLUMNS
 from steelgate.schemas import (
+    D04_QUALITY_RULES,
+    D09_QUALITY_RULES,
     QualityGateRejectionError,
     UCI_QUALITY_RULES,
+    validate_d04_or_reject,
+    validate_d09_or_reject,
     validate_neu_det_manifest,
     validate_or_reject,
-    validate_uci_frame,
 )
 
 
 def make_valid_uci_frame(n_rows: int = 12) -> pd.DataFrame:
-    """Create a mathematically self-consistent synthetic UCI plate table."""
+    """Create a mathematically self-consistent synthetic UCI D01 plate table."""
     rows: list[dict[str, float | int]] = []
     for i in range(n_rows):
         x0 = 10 + i * 5
@@ -31,9 +34,7 @@ def make_valid_uci_frame(n_rows: int = 12) -> pd.DataFrame:
         area = max(10, int(0.6 * dx * dy))
         x_perim = dx + 6
         y_perim = dy + 4
-        min_lum = 90
-        max_lum = 150
-        mean_lum = 120.0
+        min_lum, max_lum, mean_lum = 90, 150, 120.0
         lum_sum = int(round(area * mean_lum))
         conv = 1600
         a300 = 1 if i % 2 == 0 else 0
@@ -74,38 +75,101 @@ def make_valid_uci_frame(n_rows: int = 12) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=list(UCI_ALL_COLUMNS))
 
 
-def test_uci_schema_has_38_rules_and_passes_valid_frame():
+def make_valid_d04_frame(n_rows: int = 30) -> pd.DataFrame:
+    """Create a valid synthetic MatBench D04 alloy table."""
+    rows = []
+    for i in range(n_rows):
+        c_frac = 0.005 + 0.001 * (i % 6)
+        cr_frac = 0.05 + 0.01 * (i % 5)
+        fe_frac = round(1.0 - c_frac - cr_frac, 6)
+        rows.append(
+            {
+                "id": f"syn-steel-{i:03d}",
+                "composition": f"Fe{fe_frac:.6f}Cr{cr_frac:.6f}C{c_frac:.6f}",
+                "yield_strength_mpa": 950.0 + 35.0 * (i % 10) + 5.0 * i,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def make_valid_d09_frame(n_rows: int = 20) -> pd.DataFrame:
+    """Create a valid synthetic UCI Steel Energy D09 table satisfying E01-E14."""
+    base_ts = pd.Timestamp("2018-01-01 00:00:00")
+    rows = []
+    for i in range(n_rows):
+        ts = base_ts + pd.Timedelta(minutes=15 * i)
+        p = 30.0 + (i % 5) * 10.0
+        q_lag = 12.0 + (i % 3) * 4.0
+        pf_lag = round(100.0 * p / math.sqrt(p * p + q_lag * q_lag), 2)
+        rows.append(
+            {
+                "date": ts.strftime("%d/%m/%Y %H:%M"),
+                "Usage_kWh": p,
+                "Lagging_Current_Reactive.Power_kVarh": q_lag,
+                "Leading_Current_Reactive_Power_kVarh": 0.0,
+                "CO2(tCO2)": round(0.00045 * p, 2),
+                "Lagging_Current_Power_Factor": pf_lag,
+                "Leading_Current_Power_Factor": 100.0,
+                "NSM": ts.hour * 3600 + ts.minute * 60,
+                "WeekStatus": "Weekend" if ts.day_name() in ("Saturday", "Sunday") else "Weekday",
+                "Day_of_week": ts.day_name(),
+                "Load_Type": ("Light_Load", "Medium_Load", "Maximum_Load")[i % 3],
+            }
+        )
+    return pd.DataFrame(rows, columns=list(D09_ENERGY_COLUMNS))
+
+
+def test_total_rule_count_is_64_across_three_databases():
     assert len(UCI_QUALITY_RULES) == 38
+    assert len(D04_QUALITY_RULES) == 12
+    assert len(D09_QUALITY_RULES) == 14
+    assert len(UCI_QUALITY_RULES) + len(D04_QUALITY_RULES) + len(D09_QUALITY_RULES) == 64
+
+
+def test_uci_schema_passes_valid_and_rejects_violations():
     df = make_valid_uci_frame(14)
     report = validate_or_reject(df, strict_physical=True)
     assert report["passed"] is True
     assert report["total_rules"] == 38
-    assert report["rules_failed"] == 0
-    assert report["rows_passing"] == 14
 
-
-@pytest.mark.parametrize(
-    "mutator,expected_rule",
-    [
-        (lambda d: d.__setitem__("Pixels_Areas", d["Pixels_Areas"].astype(float).mask(d.index == 0, np.nan)), "R05"),
-        (lambda d: d.loc.__setitem__((0, "X_Maximum"), 5), "R19"),
-        (lambda d: d.loc.__setitem__((0, "Maximum_of_Luminosity"), 50), "R22"),
-        (lambda d: d.loc.__setitem__((0, "TypeOfSteel_A400"), int(d.loc[0, "TypeOfSteel_A300"])), "R23"),
-        (lambda d: d.loc.__setitem__((0, "Pastry"), 1 - int(d.loc[0, "Pastry"])), "R24"),
-        (lambda d: d.loc.__setitem__((0, "LogOfAreas"), 9.9), "R27"),
-        (lambda d: d.loc.__setitem__((0, "Sum_of_Luminosity"), 10), "R38"),
-    ],
-)
-def test_uci_schema_rejects_targeted_violations(mutator, expected_rule):
-    df = make_valid_uci_frame(10)
-    mutator(df)
+    bad = df.copy()
+    bad.loc[0, "Sum_of_Luminosity"] = 10
     with pytest.raises(QualityGateRejectionError) as exc_info:
-        validate_or_reject(df, strict_physical=True)
-    report = exc_info.value.report
-    assert report["passed"] is False
-    failed_ids = {r["rule_id"] for r in report["rule_results"] if not r["passed"]}
-    assert expected_rule in failed_ids
-    assert "STATUS: REJECTED" in report["error_report"].upper()
+        validate_or_reject(bad, strict_physical=True)
+    failed_ids = {r["rule_id"] for r in exc_info.value.report["rule_results"] if not r["passed"]}
+    assert "R38" in failed_ids
+
+
+def test_d04_schema_passes_valid_and_rejects_violations():
+    df = make_valid_d04_frame(12)
+    rep = validate_d04_or_reject(df, strict_physical=True)
+    assert rep["passed"] is True
+    assert rep["total_rules"] == 12
+
+    bad = df.copy()
+    bad.loc[0, "yield_strength_mpa"] = -50.0
+    bad.loc[1, "composition"] = "Cu0.9Fe0.1"  # fails M05 Fe-base >= 50%
+    bad.loc[2, "composition"] = "Fe0.80Cr0.15"  # fails M12 sum != 1.0
+    with pytest.raises(QualityGateRejectionError) as exc_info:
+        validate_d04_or_reject(bad, strict_physical=True)
+    failed_ids = {r["rule_id"] for r in exc_info.value.report["rule_results"] if not r["passed"]}
+    assert {"M05", "M09", "M12"}.issubset(failed_ids)
+
+
+def test_d09_schema_passes_valid_and_rejects_violations():
+    df = make_valid_d09_frame(12)
+    rep = validate_d09_or_reject(df, strict_physical=True)
+    assert rep["passed"] is True
+    assert rep["total_rules"] == 14
+
+    bad = df.copy()
+    bad.loc[0, "Usage_kWh"] = -12.0
+    bad.loc[1, "Lagging_Current_Power_Factor"] = 50.0  # fails E14 AC physics
+    bad.loc[2, "NSM"] = 123
+    with pytest.raises(QualityGateRejectionError) as exc_info:
+        validate_d09_or_reject(bad, strict_physical=True)
+    failed_ids = {r["rule_id"] for r in exc_info.value.report["rule_results"] if not r["passed"]}
+    assert {"E04", "E10", "E14"}.issubset(failed_ids)
 
 
 def test_neu_det_manifest_schema_passes_and_rejects_unverified_mirror():

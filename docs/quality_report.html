@@ -2,40 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Case 02 — SteelGate Data Quality Report</title>
+<title>Case 02 (v0.7.0) — Multi-Database SteelGate Quality Audit</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 1080px; margin: 2rem auto; padding: 0 1.25rem; color: #111827; line-height: 1.5; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 1120px; margin: 2rem auto; padding: 0 1.25rem; color: #111827; line-height: 1.5; }
   h1, h2 { color: #003b71; border-bottom: 1px solid #d1d5db; padding-bottom: 0.3rem; }
   .banner { background: #f8f9fa; border-left: 4px solid #003b71; padding: 0.9rem 1.1rem; margin: 1rem 0; }
-  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
-  th, td { border-bottom: 1px solid #e5e7eb; padding: 0.45rem 0.6rem; text-align: left; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { border-bottom: 1px solid #e5e7eb; padding: 0.42rem 0.55rem; text-align: left; }
   th { background: #f3f4f6; font-weight: 600; }
-  pre { background: #111827; color: #f9fafb; padding: 1rem; overflow-x: auto; border-radius: 4px; font-size: 0.85rem; }
+  pre { background: #111827; color: #f9fafb; padding: 1rem; overflow-x: auto; border-radius: 4px; font-size: 0.84rem; }
   code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 3px; }
 </style>
 </head>
 <body>
-<h1>Case 02 — SteelGate Data Quality Audit Report</h1>
+<h1>Case 02 (v0.7.0) — Multi-Database SteelGate Quality Audit</h1>
 <div class="banner">
-  <strong>Open-Data &amp; Synthetic Disclosure:</strong> Only open datasets (UCI Steel Plates Faults D01, CC BY 4.0, SHA-256 <code>cb8eb9859198b63f053e443513036b401746fa517ef58bd17c846c6741c93919</code>) and published literature are used. NEU-DET (D02) is metadata-only (<code>mirror_licence_unverified</code>). All mill-corruption and before/after perturbation experiments are explicitly <strong>synthetic</strong> corruptions of D01 evaluated on clean untouched D01 test splits. Determinism check: <strong>True</strong>.
+  <strong>Open-Data &amp; Synthetic Disclosure:</strong> Covers <strong>37,293 real records</strong> across 3 pinned open datasets (<code>D01</code> UCI Steel Plates Faults, <code>D04</code> MatBench <code>matbench_steels</code>, <code>D09</code> UCI Steel Industry Energy Consumption) and <strong>64 Pandera &amp; physics rules</strong>, plus metadata-only camera schema <code>D02</code> (<code>mirror_licence_unverified</code>). All corruption benchmarks are explicitly <strong>synthetic perturbations</strong> evaluated on untouched clean test splits. Determinism check: <strong>True</strong>.
 </div>
 
-<h2>1. Raw UCI D01 Physical &amp; Structural Audit (1,941 rows)</h2>
-<ul>
-  <li><strong>Tier 1 (37 structural &amp; mathematical rules):</strong> 1941/1941 rows pass (100.0%).</li>
-  <li><strong>Tier 2 (Rule R38 luminosity conservation):</strong> 1939/1941 rows pass; <strong>2 real anomalies</strong> detected in unmodified UCI D01.</li>
-  <li><strong>Curated D01 (1,939 rows):</strong> 1939/1939 rows pass all 38 rules (100.0%).</li>
-  <li><strong>Duplicates &amp; campaign groups:</strong> 0 exact duplicates, 2 near-duplicates (&lt;0.10 SD distance), 2 Y_Minimum collisions, 239 mill-campaign groups.</li>
-</ul>
+<h2>1. Multi-Database Summary Scorecard</h2>
 <table>
-  <thead><tr><th>Raw D01 Row</th><th>Pixels_Areas</th><th>Sum_of_Luminosity</th><th>Min_Lum</th><th>Min Expected (Area*Min_Lum)</th><th>Observed Mean Lum</th></tr></thead>
-  <tbody><tr><td>518</td><td>5357</td><td>764</td><td>123</td><td>658911</td><td>0.14</td></tr>
-<tr><td>591</td><td>5993</td><td>589956</td><td>132</td><td>791076</td><td>98.44</td></tr></tbody>
+  <thead><tr><th>Database</th><th>Records</th><th>Rules</th><th>Real Raw Findings</th><th>Gate Recovery (Clean Test)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>D01</strong> UCI Steel Plates Faults</td><td>1,941 (1,939 curated)</td><td>38 (<code>R01</code>–<code>R38</code>)</td><td>2 luminosity anomalies (rows <code>518</code>, <code>591</code>); 239 campaign groups (+5.32 pp CV gap)</td><td>ET+HGB Acc <strong>0.7856 ± 0.0110</strong> (vs. 0.7474 ± 0.0138 uncleaned ET)</td></tr>
+    <tr><td><strong>D04</strong> MatBench <code>matbench_steels</code></td><td>312</td><td>12 (<code>M01</code>–<code>M12</code>)</td><td>6 raw formula sum deviations (<code>M12</code>, max 1.22e-3)</td><td>MAE <strong>452.20 MPa ± 53.15 MPa → 82.14 MPa ± 10.16 MPa</strong> (-81.8%)</td></tr>
+    <tr><td><strong>D09</strong> UCI Steel Energy (2018)</td><td>35,040</td><td>14 (<code>E01</code>–<code>E14</code>)</td><td>35,040/35,040 pass all 14 rules incl. AC PF conservation; 00:00 rows stored out-of-order</td><td>Chronological MAE <strong>2875.59 → 5.10 kWh</strong> (-99.8%); random split understates MAE by 0.83 kWh</td></tr>
+  </tbody>
 </table>
 
-<h2>2. Corrupt-Copy Rejection Proof (Synthetic Corruption of D01)</h2>
-<p>Calling <code>steelgate.schemas.validate_or_reject</code> on a synthetically corrupted copy of D01 raises <code>QualityGateRejectionError</code>:</p>
-<pre>=== STEELGATE QUALITY REPORT ===
+<h2>2. D01 Five-Stage Cumulative Ablation Ladder (5 Seeds)</h2>
+<table>
+  <thead><tr><th>Stage</th><th>Accuracy (Mean ± SD)</th><th>Macro F1 (Mean ± SD)</th></tr></thead>
+  <tbody><tr><td>Before Gate (ET)</td><td>0.7474 ± 0.0138</td><td>0.7693 ± 0.0187</td></tr>
+<tr><td>+S1 Pint Units</td><td>0.7634 ± 0.0106</td><td>0.7793 ± 0.0144</td></tr>
+<tr><td>+S2 Repair &amp; 38 Rules</td><td>0.7634 ± 0.0130</td><td>0.7773 ± 0.0161</td></tr>
+<tr><td>+S3 Dedup</td><td>0.7675 ± 0.0125</td><td>0.7817 ± 0.0206</td></tr>
+<tr><td>+S4 Confident Learning</td><td>0.7711 ± 0.0177</td><td>0.7837 ± 0.0226</td></tr>
+<tr><td>+S5 ET+HGB Ensemble</td><td>0.7856 ± 0.0110</td><td>0.7918 ± 0.0155</td></tr>
+<tr><td>Clean Oracle (ET)</td><td>0.7887 ± 0.0103</td><td>0.8047 ± 0.0197</td></tr>
+<tr><td>Clean Oracle (ET+HGB)</td><td>0.8103 ± 0.0136</td><td>0.8213 ± 0.0136</td></tr></tbody>
+</table>
+
+<h2>3. Corrupt-Copy Rejection Excerpt (Synthetic D01)</h2>
+<pre>=== STEELGATE QUALITY REPORT (D01 (UCI Steel Plates Faults)) ===
 Rows checked: 2133 | Passing: 0 | Failing: 2133
 Pandera lazy schema errors recorded: 32365
 Unexpected extra columns (1): Thickness_Unit
@@ -62,17 +71,7 @@ Status: REJECTED — 21 rule(s) violated:
   - [R37] Luminosity_Index == mean_lum/128 - 1 (Tier 1): 58 failing row(s) [sample idx: 72, 174, 216, 217, 221]
   - [R38] Sum_of_Luminosity &gt;= Area * Min_Lum (Tier 2): 37 failing row(s) [sample idx: 72, 174, 217, 257, 265]</pre>
 
-<h2>3. Before vs. After Quality Gate Benchmark (5 Stratified Seeds, Clean Untouched Test Split)</h2>
-<table>
-  <thead><tr><th>Model</th><th>Leaky Internal QA (Acc)</th><th>Before Gate (Acc / Macro F1)</th><th>After Gate (Acc / Macro F1)</th><th>Recovery Gain</th><th>Clean Oracle</th></tr></thead>
-  <tbody>
-    <tr><td>ExtraTrees (300 trees)</td><td>0.7073 ± 0.0132</td><td>0.7474 ± 0.0138 / 0.7693 ± 0.0187</td><td>0.7696 ± 0.0145 / 0.7825 ± 0.0159</td><td>+2.22 pp Acc / +1.32 pp F1</td><td>0.7887 ± 0.0103</td></tr>
-    <tr><td>RandomForest (300 trees)</td><td>0.7115 ± 0.0152</td><td>0.7680 ± 0.0094 / 0.7824 ± 0.0192</td><td>0.7737 ± 0.0152 / 0.7894 ± 0.0220</td><td>+0.57 pp Acc / +0.71 pp F1</td><td>0.7794 ± 0.0226</td></tr>
-  </tbody>
-</table>
-<p><strong>R09 Mill-Campaign Leakage Check (5-fold CV on curated D01):</strong> Stratified Accuracy = 0.7793 ± 0.0109, Campaign-Grouped Accuracy = 0.7260 ± 0.0536 (gap = +5.32 pp).</p>
-
-<h2>4. Pint Unit Round-Trip Verification</h2>
+<h2>4. Pint Unit Round-Trip Suite (13 Conversions)</h2>
 <table>
   <thead><tr><th>Input</th><th>Converted</th><th>Round-Trip Abs Error</th><th>Status</th></tr></thead>
   <tbody><tr><td>40.0 mm</td><td>1.5748 in</td><td>7.11e-15</td><td>PASS</td></tr>
@@ -84,52 +83,81 @@ Status: REJECTED — 21 rule(s) violated:
 <tr><td>210.0 GPa</td><td>210000 MPa</td><td>0.00e+00</td><td>PASS</td></tr>
 <tr><td>355.0 MPa</td><td>51488.4 psi</td><td>5.68e-14</td><td>PASS</td></tr>
 <tr><td>920.0 degC</td><td>1193.15 K</td><td>1.14e-13</td><td>PASS</td></tr>
-<tr><td>250.0 degC</td><td>482 degF</td><td>0.00e+00</td><td>PASS</td></tr></tbody>
+<tr><td>250.0 degC</td><td>482 degF</td><td>0.00e+00</td><td>PASS</td></tr>
+<tr><td>42.5 kWh</td><td>42500 Wh</td><td>0.00e+00</td><td>PASS</td></tr>
+<tr><td>125.0 kWh</td><td>0.125 MWh</td><td>0.00e+00</td><td>PASS</td></tr>
+<tr><td>75.0 kWh</td><td>270 MJ</td><td>0.00e+00</td><td>PASS</td></tr></tbody>
 </table>
 
-<h2>5. Complete 38-Rule Pandera Scorecard (Verified 100% Pass on Curated D01)</h2>
+<h2>5. Complete 64-Rule Multi-Database Contract</h2>
 <table>
-  <thead><tr><th>Rule</th><th>Tier</th><th>Category</th><th>Name</th><th>Invariant</th><th>Failing Rows</th><th>Status</th></tr></thead>
-  <tbody><tr><td><code>R01</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Minimum non-negative</td><td>X_Minimum finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R02</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Maximum positive</td><td>X_Maximum finite and &gt;= 1</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R03</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Minimum non-negative</td><td>Y_Minimum finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R04</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Maximum positive</td><td>Y_Maximum finite and &gt;= 1</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R05</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Pixels_Areas positive</td><td>Pixels_Areas finite and &gt;= 1 pixel^2</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R06</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Perimeter positive</td><td>X_Perimeter finite and &gt;= 1 pixel</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R07</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Perimeter positive</td><td>Y_Perimeter finite and &gt;= 1 pixel</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R08</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Sum_of_Luminosity non-negative</td><td>Sum_of_Luminosity finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R09</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Minimum_of_Luminosity 8-bit</td><td>Minimum_of_Luminosity in [0, 255]</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R10</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Maximum_of_Luminosity 8-bit</td><td>Maximum_of_Luminosity in [0, 255]</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R11</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Length_of_Conveyer mill range</td><td>Length_of_Conveyer in [500, 5000] px</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R12</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Steel grade binary flags</td><td>TypeOfSteel_A300 and A400 in {0, 1}</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R13</code></td><td>Tier 1</td><td>Unit &amp; Range</td><td>Plate thickness canonical mm</td><td>Steel_Plate_Thickness in [10, 500] mm</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R14</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Normalized [0, 1] shape indices</td><td>Edges/Empty/Square/Outside_X/Edges_X/Edges_Y/SigmoidOfAreas in [0, 1]</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R15</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Outside_Global_Index discrete</td><td>Outside_Global_Index in {0.0, 0.5, 1.0}</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R16</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Logarithmic indices non-negative</td><td>LogOfAreas, Log_X_Index, Log_Y_Index &gt;= 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R17</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Signed orientation/luminosity range</td><td>Orientation_Index and Luminosity_Index in [-1, 1]</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R18</code></td><td>Tier 1</td><td>Label Integrity</td><td>Fault target indicators binary</td><td>All 7 fault indicator columns in {0, 1}</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R19</code></td><td>Tier 1</td><td>Geometry Physics</td><td>X_Maximum &gt; X_Minimum</td><td>Horizontal bounding box width dx &gt; 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R20</code></td><td>Tier 1</td><td>Geometry Physics</td><td>Y_Maximum &gt; Y_Minimum</td><td>Vertical bounding box height dy &gt; 0</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R21</code></td><td>Tier 1</td><td>Geometry Physics</td><td>X_Maximum &lt;= Length_of_Conveyer</td><td>Defect x-coordinate fits within conveyer width</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R22</code></td><td>Tier 1</td><td>Luminosity Bounds</td><td>Maximum_of_Luminosity &gt;= Minimum_of_Luminosity</td><td>Peak intensity &gt;= minimum intensity</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R23</code></td><td>Tier 1</td><td>Label Integrity</td><td>Steel grade one-hot exclusivity</td><td>TypeOfSteel_A300 + TypeOfSteel_A400 == 1</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R24</code></td><td>Tier 1</td><td>Label Integrity</td><td>Fault class 1-of-7 exclusivity</td><td>Sum of 7 fault indicator columns == 1</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R25</code></td><td>Tier 1</td><td>Geometry Physics</td><td>Pixels_Areas &lt;= dx * dy</td><td>Defect pixel area cannot exceed bounding box area</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R26</code></td><td>Tier 1</td><td>Luminosity Bounds</td><td>Sum_of_Luminosity &lt;= Area * Max_Lum</td><td>Total luminosity cannot exceed Pixels_Areas * Maximum_of_Luminosity</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R27</code></td><td>Tier 1</td><td>Math Invariant</td><td>LogOfAreas == log10(Pixels_Areas)</td><td>|LogOfAreas - log10(Pixels_Areas)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R28</code></td><td>Tier 1</td><td>Math Invariant</td><td>Log_X_Index == log10(dx)</td><td>|Log_X_Index - log10(X_Maximum - X_Minimum)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R29</code></td><td>Tier 1</td><td>Math Invariant</td><td>Log_Y_Index == log10(dy)</td><td>|Log_Y_Index - log10(Y_Maximum - Y_Minimum)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R30</code></td><td>Tier 1</td><td>Math Invariant</td><td>Outside_X_Index == dx / Conveyer</td><td>|Outside_X_Index - dx / Length_of_Conveyer| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R31</code></td><td>Tier 1</td><td>Math Invariant</td><td>Empty_Index == 1 - Area / (dx*dy)</td><td>|Empty_Index - (1 - Pixels_Areas / (dx*dy))| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R32</code></td><td>Tier 1</td><td>Math Invariant</td><td>Square_Index == min(dx,dy)/max(dx,dy)</td><td>|Square_Index - min(dx,dy)/max(dx,dy)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R33</code></td><td>Tier 1</td><td>Math Invariant</td><td>Edges_X_Index == dx / X_Perimeter</td><td>|Edges_X_Index - dx / X_Perimeter| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R34</code></td><td>Tier 1</td><td>Math Invariant</td><td>Edges_Y_Index == dy / Y_Perimeter</td><td>|Edges_Y_Index - dy / Y_Perimeter| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R35</code></td><td>Tier 1</td><td>Math Invariant</td><td>Outside_Global_Index sign consistency</td><td>1.0 if dy &gt; dx, 0.5 if dy == dx, 0.0 if dy &lt; dx</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R36</code></td><td>Tier 1</td><td>Math Invariant</td><td>Orientation_Index == (dy-dx)/max(dx,dy)</td><td>|Orientation_Index - (dy - dx)/max(dx, dy)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R37</code></td><td>Tier 1</td><td>Math Invariant</td><td>Luminosity_Index == mean_lum/128 - 1</td><td>|Luminosity_Index - ((Sum_of_Luminosity/Pixels_Areas)/128 - 1)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
-<tr><td><code>R38</code></td><td>Tier 2</td><td>Physical Conservation</td><td>Sum_of_Luminosity &gt;= Area * Min_Lum</td><td>Total luminosity &gt;= Pixels_Areas * Minimum_of_Luminosity (catches raw D01 rows 518, 591)</td><td>0</td><td>PASS</td></tr></tbody>
+  <thead><tr><th>Dataset</th><th>Rule</th><th>Tier</th><th>Category</th><th>Name</th><th>Invariant</th><th>Raw Failing</th><th>Status</th></tr></thead>
+  <tbody><tr><td>D01</td><td><code>R01</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Minimum non-negative</td><td>X_Minimum finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R02</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Maximum positive</td><td>X_Maximum finite and &gt;= 1</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R03</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Minimum non-negative</td><td>Y_Minimum finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R04</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Maximum positive</td><td>Y_Maximum finite and &gt;= 1</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R05</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Pixels_Areas positive</td><td>Pixels_Areas finite and &gt;= 1 pixel^2</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R06</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>X_Perimeter positive</td><td>X_Perimeter finite and &gt;= 1 pixel</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R07</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Y_Perimeter positive</td><td>Y_Perimeter finite and &gt;= 1 pixel</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R08</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Sum_of_Luminosity non-negative</td><td>Sum_of_Luminosity finite and &gt;= 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R09</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Minimum_of_Luminosity 8-bit</td><td>Minimum_of_Luminosity in [0, 255]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R10</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Maximum_of_Luminosity 8-bit</td><td>Maximum_of_Luminosity in [0, 255]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R11</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Length_of_Conveyer mill range</td><td>Length_of_Conveyer in [500, 5000] px</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R12</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Steel grade binary flags</td><td>TypeOfSteel_A300 and A400 in {0, 1}</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R13</code></td><td>Tier 1</td><td>Unit &amp; Range</td><td>Plate thickness canonical mm</td><td>Steel_Plate_Thickness in [10, 500] mm</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R14</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Normalized [0, 1] shape indices</td><td>Edges/Empty/Square/Outside_X/Edges_X/Edges_Y/SigmoidOfAreas in [0, 1]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R15</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Outside_Global_Index discrete</td><td>Outside_Global_Index in {0.0, 0.5, 1.0}</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R16</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Logarithmic indices non-negative</td><td>LogOfAreas, Log_X_Index, Log_Y_Index &gt;= 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R17</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Signed orientation/luminosity range</td><td>Orientation_Index and Luminosity_Index in [-1, 1]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R18</code></td><td>Tier 1</td><td>Label Integrity</td><td>Fault target indicators binary</td><td>All 7 fault indicator columns in {0, 1}</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R19</code></td><td>Tier 1</td><td>Geometry Physics</td><td>X_Maximum &gt; X_Minimum</td><td>Horizontal bounding box width dx &gt; 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R20</code></td><td>Tier 1</td><td>Geometry Physics</td><td>Y_Maximum &gt; Y_Minimum</td><td>Vertical bounding box height dy &gt; 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R21</code></td><td>Tier 1</td><td>Geometry Physics</td><td>X_Maximum &lt;= Length_of_Conveyer</td><td>Defect x-coordinate fits within conveyer width</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R22</code></td><td>Tier 1</td><td>Luminosity Bounds</td><td>Maximum_of_Luminosity &gt;= Minimum_of_Luminosity</td><td>Peak intensity &gt;= minimum intensity</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R23</code></td><td>Tier 1</td><td>Label Integrity</td><td>Steel grade one-hot exclusivity</td><td>TypeOfSteel_A300 + TypeOfSteel_A400 == 1</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R24</code></td><td>Tier 1</td><td>Label Integrity</td><td>Fault class 1-of-7 exclusivity</td><td>Sum of 7 fault indicator columns == 1</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R25</code></td><td>Tier 1</td><td>Geometry Physics</td><td>Pixels_Areas &lt;= dx * dy</td><td>Defect pixel area cannot exceed bounding box area</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R26</code></td><td>Tier 1</td><td>Luminosity Bounds</td><td>Sum_of_Luminosity &lt;= Area * Max_Lum</td><td>Total luminosity cannot exceed Pixels_Areas * Maximum_of_Luminosity</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R27</code></td><td>Tier 1</td><td>Math Invariant</td><td>LogOfAreas == log10(Pixels_Areas)</td><td>|LogOfAreas - log10(Pixels_Areas)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R28</code></td><td>Tier 1</td><td>Math Invariant</td><td>Log_X_Index == log10(dx)</td><td>|Log_X_Index - log10(X_Maximum - X_Minimum)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R29</code></td><td>Tier 1</td><td>Math Invariant</td><td>Log_Y_Index == log10(dy)</td><td>|Log_Y_Index - log10(Y_Maximum - Y_Minimum)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R30</code></td><td>Tier 1</td><td>Math Invariant</td><td>Outside_X_Index == dx / Conveyer</td><td>|Outside_X_Index - dx / Length_of_Conveyer| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R31</code></td><td>Tier 1</td><td>Math Invariant</td><td>Empty_Index == 1 - Area / (dx*dy)</td><td>|Empty_Index - (1 - Pixels_Areas / (dx*dy))| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R32</code></td><td>Tier 1</td><td>Math Invariant</td><td>Square_Index == min(dx,dy)/max(dx,dy)</td><td>|Square_Index - min(dx,dy)/max(dx,dy)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R33</code></td><td>Tier 1</td><td>Math Invariant</td><td>Edges_X_Index == dx / X_Perimeter</td><td>|Edges_X_Index - dx / X_Perimeter| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R34</code></td><td>Tier 1</td><td>Math Invariant</td><td>Edges_Y_Index == dy / Y_Perimeter</td><td>|Edges_Y_Index - dy / Y_Perimeter| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R35</code></td><td>Tier 1</td><td>Math Invariant</td><td>Outside_Global_Index sign consistency</td><td>1.0 if dy &gt; dx, 0.5 if dy == dx, 0.0 if dy &lt; dx</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R36</code></td><td>Tier 1</td><td>Math Invariant</td><td>Orientation_Index == (dy-dx)/max(dx,dy)</td><td>|Orientation_Index - (dy - dx)/max(dx, dy)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R37</code></td><td>Tier 1</td><td>Math Invariant</td><td>Luminosity_Index == mean_lum/128 - 1</td><td>|Luminosity_Index - ((Sum_of_Luminosity/Pixels_Areas)/128 - 1)| &lt;= 1e-3</td><td>0</td><td>PASS</td></tr>
+<tr><td>D01</td><td><code>R38</code></td><td>Tier 2</td><td>Physical Conservation</td><td>Sum_of_Luminosity &gt;= Area * Min_Lum</td><td>Total luminosity &gt;= Pixels_Areas * Minimum_of_Luminosity (catches raw D01 rows 518, 591)</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M01</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Unique non-null alloy ID</td><td>id is non-null string without duplicates</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M02</code></td><td>Tier 1</td><td>Formula Syntax</td><td>Valid chemical formula string</td><td>composition is non-null and syntactically parseable</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M03</code></td><td>Tier 1</td><td>Alloy Chemistry</td><td>Known IUPAC steel elements</td><td>All parsed elements exist in IUPAC ATOMIC_WEIGHTS</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M04</code></td><td>Tier 1</td><td>Alloy Chemistry</td><td>Positive finite stoichiometric coefficients</td><td>All parsed elemental coefficients are finite and &gt; 0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M05</code></td><td>Tier 1</td><td>Metallurgy Physics</td><td>Fe-base steel domain</td><td>Iron (Fe) atomic fraction &gt;= 50.0 at%</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M06</code></td><td>Tier 1</td><td>Metallurgy Physics</td><td>Carbon solubility ceiling</td><td>Carbon (C) atomic fraction &lt;= 15.0 at%</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M07</code></td><td>Tier 1</td><td>Metallurgy Physics</td><td>Multicomponent steel alloy</td><td>At least 2 alloying elements present</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M08</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Yield strength finite numeric</td><td>yield_strength_mpa is finite and non-null</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M09</code></td><td>Tier 1</td><td>Unit &amp; Range</td><td>Yield strength lower bound</td><td>yield_strength_mpa &gt;= 100.0 MPa</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M10</code></td><td>Tier 1</td><td>Unit &amp; Range</td><td>Yield strength upper bound</td><td>yield_strength_mpa &lt;= 3000.0 MPa</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M11</code></td><td>Tier 1</td><td>Duplicate Control</td><td>No duplicate (composition, strength)</td><td>Unique (composition, yield_strength_mpa) rows</td><td>0</td><td>PASS</td></tr>
+<tr><td>D04</td><td><code>M12</code></td><td>Tier 2</td><td>Stoichiometric Conservation</td><td>Raw formula fraction sum == 1.0</td><td>|sum(raw_formula_fractions) - 1.0| &lt;= 1e-3 (catches 6 raw D04 rows)</td><td>6</td><td>FAIL</td></tr>
+<tr><td>D09</td><td><code>E01</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Complete 11-column telemetry row</td><td>All 11 D09 telemetry columns present and non-null</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E02</code></td><td>Tier 1</td><td>Timestamp Integrity</td><td>Valid 15-min timestamp format</td><td>date parses cleanly as %d/%m/%Y %H:%M</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E03</code></td><td>Tier 1</td><td>Duplicate Control</td><td>Unique 15-min timestamps</td><td>No duplicate timestamps in plant energy stream</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E04</code></td><td>Tier 1</td><td>Unit &amp; Range</td><td>Active energy Usage_kWh bounds</td><td>Usage_kWh finite in [0.0, 500.0] kWh</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E05</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Lagging reactive power non-negative</td><td>Lagging_Current_Reactive.Power_kVarh &gt;= 0.0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E06</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Leading reactive power non-negative</td><td>Leading_Current_Reactive_Power_kVarh &gt;= 0.0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E07</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>CO2 emissions non-negative</td><td>CO2(tCO2) finite and &gt;= 0.0</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E08</code></td><td>Tier 1</td><td>Electrical Bounds</td><td>Lagging power factor [0, 100]%</td><td>Lagging_Current_Power_Factor in [0.0, 100.0]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E09</code></td><td>Tier 1</td><td>Electrical Bounds</td><td>Leading power factor [0, 100]%</td><td>Leading_Current_Power_Factor in [0.0, 100.0]</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E10</code></td><td>Tier 1</td><td>Timestamp Integrity</td><td>15-min NSM grid cadence</td><td>NSM in [0, 86400] and divisible by 900 s</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E11</code></td><td>Tier 1</td><td>Timestamp Integrity</td><td>NSM matches timestamp clock</td><td>NSM == hour*3600 + minute*60</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E12</code></td><td>Tier 1</td><td>Calendar Integrity</td><td>WeekStatus &amp; Day_of_week consistency</td><td>Day_of_week and WeekStatus match parsed date</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E13</code></td><td>Tier 1</td><td>Domain &amp; Nulls</td><td>Valid mill Load_Type enum</td><td>Load_Type in {Light_Load, Medium_Load, Maximum_Load}</td><td>0</td><td>PASS</td></tr>
+<tr><td>D09</td><td><code>E14</code></td><td>Tier 2</td><td>Electrical Physics</td><td>AC power factor PF = 100*P/sqrt(P^2+Q^2)</td><td>|Lagging_PF - 100*P/sqrt(P^2+Q^2)| &lt;= 0.01 where P,Q &gt; 0</td><td>0</td><td>PASS</td></tr></tbody>
 </table>
 
-<p><small>Generated deterministically from <code>results/metrics.json</code> | Code fingerprint: <code>9555b6657b51101ae6cc6a0b95694efdae91a02e5115f23d744cf60b1ce0e4b9</code></small></p>
+<p><small>Generated deterministically from <code>results/metrics.json</code> | Code fingerprint: <code>5b5615c214c97181f48b6011674ac8f194689a59891a7f3236d9108dc906f989</code></small></p>
 </body>
 </html>

@@ -1,74 +1,48 @@
-# Case 02 — Data Quality Gate & Before/After Benchmark Results (v0.4.0)
+# Case 02 — Multi-Database Quality Gate & Recovery Results (v0.7.0)
 
-**Summary:** Case 02 (`steelgate`) enforces a **38-rule Pandera schema and physical-invariant contract**, **Pint unit normalization**, **$\Sigma = 100\%$ alloy mass-balance checks**, and **duplicate/leakage audits** on open steel plate inspection data (UCI D01).
+**Summary:** Case 02 (`steelgate` v0.7.0) governs **37,293 real records** across **three open metallurgy & steel-plant databases** (`D01`, `D04`, `D09`) with **64 named Pandera & physics rules**, **13 Pint unit round-trips**, **$\Sigma = 100\%$ alloy stoichiometry checks**, and **leakage-safe before/after benchmarks**:
 
-- **Real Raw D01 Finding:** Auditing all 1,941 unmodified rows of UCI Steel Plates Faults reveals 100% compliance on all 37 structural/mathematical rules (`R01`–`R37`), while Tier 2 physical luminosity conservation (`R38`: $\text{Sum\_of\_Luminosity} \ge \text{Pixels\_Areas} \times \text{Minimum\_of\_Luminosity}$) detects **2 genuine physical anomalies** at raw rows **518** and **591**. After quarantining those two rows, curated D01 (1,939 rows) passes **38/38 rules (100.0%)**.
-- **Corrupt-Copy Rejection:** A deliberately corrupted synthetic copy of D01 (2,133 rows with mixed units, missing values, geometric/physical errors, invalid fault vectors, and duplicates) is rejected by `validate_or_reject` across **21 violated rules**.
-- **Before vs. After Quality Gate (5 Stratified Seeds, Clean Untouched Test Splits):** Applying `steelgate` (`pint` unit normalization, 38-rule quarantine, deduplication, and training-only OOF confident-learning noise quarantine) improves ExtraTrees 7-class accuracy from **0.7474 ± 0.0138** to **0.7696 ± 0.0145** (**+2.22 pp**) and macro F1 from **0.7693 ± 0.0187** to **0.7825 ± 0.0159** (**+1.32 pp**), with **zero exact train/test leakage** across all 5 seeds.
-- **R09 Mill-Campaign Leakage:** Grouping 5-fold CV by mill campaign `(Length_of_Conveyer, Steel_Plate_Thickness, TypeOfSteel_A300)` across 239 campaigns lowers ExtraTrees accuracy from **0.7793 ± 0.0109** to **0.7260 ± 0.0536** (**+5.32 pp** accuracy / **+9.07 pp** macro F1 inflation under naive stratified splitting).
+1. **UCI Steel Plates Faults (`D01`, 1,941 raw / 1,939 curated, 38 rules `R01`–`R38`):** Tier 2 physical luminosity conservation (`R38`) detects **2 genuine raw anomalies** (rows `518` & `591`). Across 5 stratified seeds on clean untouched test splits, the 5-stage `steelgate` pipeline (`Pint` mm normalization → derived-index repair & 38-rule quarantine → deduplication → Northcutt Confident Learning → `ExtraTrees + HistGradientBoosting` soft-voting ensemble) lifts 7-class accuracy from **0.7474 ± 0.0138** (uncleaned ET) to **0.7856 ± 0.0110** (**+3.82 pp**; macro F1 **0.7693 → 0.7918**) with **0/5 seeds** train/test leakage.
+2. **MatBench `matbench_steels` (`D04`, 312 alloys, 12 rules `M01`–`M12`):** `312/312` alloys pass `M01`–`M11` and convert `at% ↔ wt%` within `2.84e-14`; Tier 2 stoichiometric conservation (`M12`) catches **6 raw formula-sum deviations** (`rows 21, 28, 36, 90, 91, 103`, max `1.22e-3`). On the official 5 MatBench folds under synthetic unit/outlier corruption, the gate slashes yield-strength MAE from **452.20 ± 53.15 MPa** ($R^2 = -2.97$) to **82.14 ± 10.16 MPa** ($R^2 = 0.8502$, **81.83% reduction**, clean oracle `79.09 ± 8.54 MPa`).
+3. **UCI Steel Industry Energy (`D09`, 35,040 rows, 14 rules `E01`–`E14`):** `35,040/35,040` (100%) pass all 14 telemetry and AC power-factor physics rules (`|PF - 100P/\sqrt{P^2+Q^2}| \le 0.01\%`). Chronological sorting fixes raw out-of-order `00:00` timestamps; random 80/20 splitting understates chronological MAE by **0.83 kWh** (`4.31` vs `5.14 kWh`). Under synthetic `Wh`/`MWh` and telemetry corruption, the gate restores chronological MAE from **2,875.59 kWh** ($R^2 = -23,799$) to **5.10 kWh** ($R^2 = 0.9030$, **99.82% reduction**, clean oracle `5.14 kWh`).
 
-![Table 1: Case 02 quantitative scorecard](figures/c02_scorecard.svg)
+![Table 1: Case 02 multi-database scorecard](figures/c02_scorecard.svg)
 
-![Fig. 1: Before/after quality gate recovery, per-class F1, failure breakdown, and R09 campaign CV gap](figures/c02_before_after.svg)
+![Fig. 1: Multi-database quality-gate recovery (D01, D04, D09) and leakage gaps](figures/c02_before_after.svg)
 
-![Fig. 2: Raw D01 luminosity conservation audit, Pint thickness normalization, and post-gate confusion matrix](figures/c02_diagnostics.svg)
+![Fig. 2: Real raw-data physics anomalies in D01 & D04, plus post-gate ET+HGB 7x7 confusion matrix](figures/c02_diagnostics.svg)
 
-See also the interactive [`quality_report.html`](quality_report.html). All figures and metrics are regenerated deterministically from [`../results/metrics.json`](../results/metrics.json).
-
----
-
-## 1. Raw Unmodified UCI D01 Audit (1,941 Rows)
-
-| Check | Scope | Result | Details |
-|---|---|---:|---|
-| Tier 1 Schema & Math (`R01`–`R37`) | 1,941 raw rows | **1,941 / 1,941 (100.0%)** | Max invariant deviation `< 5.5e-5` across log, empty, square, orientation, edge, and luminosity indices |
-| Tier 2 Luminosity Conservation (`R38`) | 1,941 raw rows | **1,939 / 1,941 (99.90%)** | Detects **2 real anomalies** in unmodified D01 (rows `518` and `591`) |
-| Curated D01 (`R01`–`R38`) | 1,939 curated rows | **1,939 / 1,939 (100.0%)** | All 38 rules pass at 100.0% |
-| Exact & Near Duplicates | 1,941 raw rows | `0` exact / `2` near (`< 0.10` SD) | Min NN distance `0.0311`, `2` `Y_Minimum` collisions, `239` mill-campaign groups |
-
-| Raw D01 Row | `Pixels_Areas` | `Sum_of_Luminosity` | `Minimum_of_Luminosity` | Expected Min (`Area * Min_Lum`) | Observed Mean Luminosity | `Luminosity_Index` |
-|---:|---:|---:|---:|---:|---:|---:|
-| **518** | 5,357 | 764 | 123 | 658,911 | 0.14 | -0.9989 |
-| **591** | 5,993 | 589,956 | 132 | 791,076 | 98.44 | -0.2309 |
+See also [`quality_report.html`](quality_report.html). All numbers and figures are generated deterministically from [`../results/metrics.json`](../results/metrics.json).
 
 ---
 
-## 2. Pint Unit Round-Trips & Alloy Mass-Balance ($\Sigma = 100\%$)
+## 1. D01 Five-Stage Cumulative Ablation Ladder (5 Seeds, Clean Untouched Test Splits)
 
-- **10 Pint physical unit round-trips** (`mm <-> in/cm/m/um/mil`, `MPa <-> ksi/GPa/psi`, `degC <-> K/degF`): **10/10 PASS**, maximum absolute round-trip error **`1.71e-13`**.
-- **4 reference steel grades** (`AISI 304`, `AISI 4140`, `API 5L X70`, `AISI 316L`): all pass `Sigma wt% == 100%` within `0.05%` and round-trip `wt% -> at% -> wt%` with maximum absolute error **`1.42e-14`**.
-- **Invalid mass-balance rejection:** Synthetic alloy summing to `103.5 wt%` is explicitly rejected.
+> **Synthetic Disclosure:** Training splits receive explicitly **synthetic** mill corruptions of `D01`; all metrics are evaluated on clean, untouched 20% `D01` test splits.
+
+| Pipeline Stage | Accuracy (Mean ± SD) | Macro F1 (Mean ± SD) |
+|---|---:|---:|
+| Before Gate (`ExtraTrees`, uncleaned) | 0.7474 ± 0.0138 | 0.7693 ± 0.0187 |
+| + Stage 1 (`pint` thickness → `mm`) | 0.7634 ± 0.0106 | 0.7793 ± 0.0144 |
+| + Stage 2 (Derived repair & 38-rule quarantine) | 0.7634 ± 0.0130 | 0.7773 ± 0.0161 |
+| + Stage 3 (Exact & conflict deduplication) | 0.7675 ± 0.0125 | 0.7817 ± 0.0206 |
+| + Stage 4 (Northcutt Confident Learning, ET) | 0.7711 ± 0.0177 | 0.7837 ± 0.0226 |
+| **+ Stage 5 (`ET + HGB` Soft-Voting Ensemble)** | **0.7856 ± 0.0110** | **0.7918 ± 0.0155** |
+| Clean Oracle (`ExtraTrees`) | 0.7887 ± 0.0103 | 0.8047 ± 0.0197 |
+| Clean Oracle (`ET + HGB` Ensemble) | 0.8103 ± 0.0136 | 0.8213 ± 0.0136 |
+
+- **Comparator Models (Before → After Gate):** `RandomForest` `0.7680 → 0.7778` accuracy (`0.7824 → 0.7862` F1); `ET+HGB` `0.7722 → 0.7856` accuracy (`0.7827 → 0.7918` F1); `Leaky Internal QA` `0.7237` with **`62.6 ± 7.5`** leaked duplicates.
+- **R09 Mill-Campaign Leakage (Clean Curated `D01`, 239 campaigns):** `StratifiedKFold` `0.7793 ± 0.0109` vs. `StratifiedGroupKFold` `0.7260 ± 0.0536` (**+5.32 pp** accuracy / **+9.07 pp** macro F1 inflation).
 
 ---
 
-## 3. Corrupt-Copy Rejection & Synthetic Before/After Benchmark
+## 2. D04 (`matbench_steels`) & D09 (`steel_industry_energy_consumption`) Benchmarks
 
-> **Synthetic Disclosure:** Both the corrupt-copy rejection dataset (2,133 rows) and the training-split corruptions in the before/after benchmark are **explicitly synthetic perturbations of open UCI D01**. All test evaluations are performed strictly on **clean, untouched 20% test splits** of curated D01.
-
-| Model | Regime | Accuracy (Mean ± SD) | Macro F1 (Mean ± SD) | Notes |
+| Database | Regime (Synthetic Training Corruptions) | Primary Metric | $R^2$ | Leakage Audit |
 |---|---|---:|---:|---|
-| **ExtraTrees (300 trees)** | Leaky Internal QA (synthetic dupes) | 0.7073 ± 0.0132 | 0.6930 ± 0.0142 | **`62.6 ± 7.5`** duplicate rows leaked across train/test |
-| **ExtraTrees (300 trees)** | Before Gate (uncleaned corrupted train) | 0.7474 ± 0.0138 | 0.7693 ± 0.0187 | Mixed units (`in`/`cm`/`um`), NaNs imputed, bad geometry & label noise kept |
-| **ExtraTrees (300 trees)** | **After Gate (`steelgate` cleaned train)** | **0.7696 ± 0.0145** | **0.7825 ± 0.0159** | **+2.22 pp Acc / +1.32 pp F1**, **0/5 seeds** train/test leakage |
-| **ExtraTrees (300 trees)** | Clean Oracle Reference (uncorrupted train) | 0.7887 ± 0.0103 | 0.8047 ± 0.0197 | Upper-bound reference on clean D01 |
-| **RandomForest (300 trees)** | Before Gate (uncleaned corrupted train) | 0.7680 ± 0.0094 | 0.7824 ± 0.0192 | Uncleaned baseline |
-| **RandomForest (300 trees)** | **After Gate (`steelgate` cleaned train)** | **0.7737 ± 0.0152** | **0.7894 ± 0.0220** | **+0.57 pp Acc / +0.71 pp F1**, **0/5 seeds** train/test leakage |
-
-### Y2R12 Confidence–Error Modality (ExtraTrees After Gate, Seed 42)
-
-| Confidence Bin | Samples | Accuracy |
-|---|---:|---:|
-| `[0.00, 0.50]` | 95 | 0.5579 |
-| `[0.50, 0.70]` | 128 | 0.7109 |
-| `[0.70, 0.85]` | 60 | 0.9167 |
-| `[0.85, 1.00]` | 105 | **1.0000** |
-
----
-
-## 4. R09 Mill-Campaign Leakage CV (Clean Curated D01, 1,939 Rows)
-
-| CV Protocol | Accuracy (Mean ± SD) | Macro F1 (Mean ± SD) |
-|---|---:|---:|
-| 5-fold `StratifiedKFold` (random plate split) | 0.7793 ± 0.0109 | 0.7984 ± 0.0093 |
-| 5-fold `StratifiedGroupKFold` (239 mill campaigns) | 0.7260 ± 0.0536 | 0.7077 ± 0.0740 |
-| **Optimistic Leakage Gap (Stratified − Grouped)** | **+5.32 pp** | **+9.07 pp** |
+| **D04** (5 official folds) | Before Gate (uncleaned `ksi`/`GPa`/outliers) | 452.20 ± 53.15 MPa MAE | -2.9724 | — |
+| **D04** (5 official folds) | **After Gate (`steelgate` D04)** | **82.14 ± 10.16 MPa MAE** | **0.8502** | **0** fold ID overlaps |
+| **D04** (5 official folds) | Clean Oracle Reference | 79.09 ± 8.54 MPa MAE | 0.8567 | — |
+| **D09** (Chronological 80/20) | Before Gate (uncleaned `Wh`/`MWh`/negatives) | 2,875.59 kWh MAE | -23799.14 | — |
+| **D09** (Chronological 80/20) | **After Gate (`steelgate` D09)** | **5.10 kWh MAE** | **0.9030** | **0** timestamp overlaps |
+| **D09** (Chronological 80/20) | Clean Oracle (Chronological 80/20) | 5.14 kWh MAE | 0.9023 | +0.83 kWh vs. random 80/20 |

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "steelgate"
-version = "0.4.0"
-description = "Schema-enforced data quality gate, pint unit normalization, and leakage detection for open steel inspection datasets (Case 02)"
+version = "0.7.0"
+description = "Multi-database schema-enforced data quality gate, pint unit normalization, and leakage detection for open steel datasets (Case 02)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }

@@ -1,146 +1,127 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="740" viewBox="0 0 1040 740" role="img" aria-label="Case 02 before and after quality gate comparison">
-<rect width="1040" height="740" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="740" viewBox="0 0 1060 740" role="img" aria-label="Case 02 multi-database recovery and leakage">
+<rect width="1060" height="740" fill="#ffffff"/>
 <text x="36.0" y="30.0" fill="#003b71" font-size="12" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Fig. 1</text>
-<text x="78.0" y="30.0" fill="#111827" font-size="12" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Impact of SteelGate data-quality enforcement on fault classification and split integrity (Case 02)</text>
-<text x="36.0" y="48.0" fill="#4b5563" font-size="10" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Training splits receive synthetic mill corruptions of open UCI D01; test evaluation uses clean untouched D01 splits across 5 stratified seeds.</text>
+<text x="78.0" y="30.0" fill="#111827" font-size="12" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Multi-database quality-gate recovery (D01, D04, D09) and leakage inflation (Case 02 v0.7.0)</text>
+<text x="36.0" y="48.0" fill="#4b5563" font-size="10" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Training partitions receive synthetic corruptions of open datasets; all test evaluations use clean untouched test splits.</text>
 <text x="36.0" y="80.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">a</text>
-<text x="52.0" y="80.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Accuracy &amp; Macro F1 across data regimes (ExtraTrees)</text>
-<line x1="80" y1="320.0" x2="480" y2="320.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="324.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.4</text>
-<line x1="80" y1="275.0" x2="480" y2="275.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="279.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.5</text>
-<line x1="80" y1="230.0" x2="480" y2="230.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="234.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.6</text>
-<line x1="80" y1="185.0" x2="480" y2="185.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="189.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7</text>
-<line x1="80" y1="140.0" x2="480" y2="140.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="144.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.8</text>
-<line x1="80" y1="95.0" x2="480" y2="95.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="72.0" y="99.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.9</text>
+<text x="52.0" y="80.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">D01 5-stage gate ablation &amp; ET+HGB ensemble (5 seeds)</text>
+<line x1="80" y1="320.0" x2="505" y2="320.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="324.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.72</text>
+<line x1="80" y1="275.0" x2="505" y2="275.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="279.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.74</text>
+<line x1="80" y1="230.0" x2="505" y2="230.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="234.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.76</text>
+<line x1="80" y1="185.0" x2="505" y2="185.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="189.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.78</text>
+<line x1="80" y1="140.0" x2="505" y2="140.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="144.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.80</text>
+<line x1="80" y1="95.0" x2="505" y2="95.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="72.0" y="99.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.82</text>
 <line x1="80" y1="95" x2="80" y2="320" stroke="#222222" stroke-width="1.2"/>
-<line x1="80" y1="320" x2="480" y2="320" stroke="#222222" stroke-width="1.2"/>
-<rect x="108.0" y="181.7" width="18" height="138.3" fill="#c8cdd3"/>
-<line x1="117.0" y1="175.8" x2="117.0" y2="187.7" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="117.0" y="171.8" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.707</text>
-<rect x="134.0" y="188.2" width="18" height="131.8" fill="#7a8b99"/>
-<line x1="143.0" y1="181.8" x2="143.0" y2="194.5" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="143.0" y="177.8" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.693</text>
-<text x="130.0" y="336.0" fill="#111827" font-size="9.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Leaky QA</text>
-<rect x="208.0" y="163.7" width="18" height="156.3" fill="#b91c1c"/>
-<line x1="217.0" y1="157.4" x2="217.0" y2="169.9" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="217.0" y="153.4" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.747</text>
-<rect x="234.0" y="153.8" width="18" height="166.2" fill="#7a8b99"/>
-<line x1="243.0" y1="145.4" x2="243.0" y2="162.2" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="243.0" y="141.4" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.769</text>
-<text x="230.0" y="336.0" fill="#111827" font-size="9.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Before Gate</text>
-<rect x="308.0" y="153.7" width="18" height="166.3" fill="#003b71"/>
-<line x1="317.0" y1="147.2" x2="317.0" y2="160.2" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="317.0" y="143.2" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.770</text>
-<rect x="334.0" y="147.9" width="18" height="172.1" fill="#4a90c2"/>
-<line x1="343.0" y1="140.7" x2="343.0" y2="155.0" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="343.0" y="136.7" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.782</text>
-<text x="330.0" y="336.0" fill="#111827" font-size="9.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">After Gate</text>
-<rect x="408.0" y="145.1" width="18" height="174.9" fill="#4a90c2"/>
-<line x1="417.0" y1="140.5" x2="417.0" y2="149.7" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="417.0" y="136.5" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.789</text>
-<rect x="434.0" y="137.9" width="18" height="182.1" fill="#7a8b99"/>
-<line x1="443.0" y1="129.0" x2="443.0" y2="146.8" stroke="#1a1a1a" stroke-width="1.2"/>
-<text x="443.0" y="125.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.805</text>
-<text x="430.0" y="336.0" fill="#111827" font-size="9.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Clean Oracle</text>
-<text x="476.0" y="107.0" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Left bar: Accuracy | Right bar: Macro F1</text>
-<text x="540.0" y="80.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">b</text>
-<text x="556.0" y="80.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Per-class F1 before vs. after quality gate (5 seeds)</text>
-<line x1="585" y1="320.0" x2="1000" y2="320.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="324.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.00</text>
-<line x1="585" y1="263.8" x2="1000" y2="263.8" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="267.8" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.25</text>
-<line x1="585" y1="207.5" x2="1000" y2="207.5" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="211.5" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.50</text>
-<line x1="585" y1="151.2" x2="1000" y2="151.2" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="155.2" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.75</text>
-<line x1="585" y1="95.0" x2="1000" y2="95.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="99.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">1.00</text>
-<line x1="585" y1="95" x2="585" y2="320" stroke="#222222" stroke-width="1.2"/>
-<line x1="585" y1="320" x2="1000" y2="320" stroke="#222222" stroke-width="1.2"/>
-<rect x="598.6" y="191.3" width="14" height="128.7" fill="#b91c1c" opacity="0.82"/>
-<rect x="616.6" y="194.1" width="14" height="125.9" fill="#003b71"/>
-<text x="614.6" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Pastry</text>
-<rect x="657.9" y="129.8" width="14" height="190.2" fill="#b91c1c" opacity="0.82"/>
-<rect x="675.9" y="123.7" width="14" height="196.3" fill="#003b71"/>
-<text x="673.9" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Z_Scr</text>
-<rect x="717.2" y="106.7" width="14" height="213.3" fill="#b91c1c" opacity="0.82"/>
-<rect x="735.2" y="104.3" width="14" height="215.7" fill="#003b71"/>
-<text x="733.2" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">K_Sca</text>
-<rect x="776.5" y="114.0" width="14" height="206.0" fill="#b91c1c" opacity="0.82"/>
-<rect x="794.5" y="115.5" width="14" height="204.5" fill="#003b71"/>
-<text x="792.5" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Stains</text>
-<rect x="835.8" y="145.5" width="14" height="174.5" fill="#b91c1c" opacity="0.82"/>
-<rect x="853.8" y="142.8" width="14" height="177.2" fill="#003b71"/>
-<text x="851.8" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Dirt</text>
-<rect x="895.1" y="177.7" width="14" height="142.3" fill="#b91c1c" opacity="0.82"/>
-<rect x="913.1" y="169.4" width="14" height="150.6" fill="#003b71"/>
-<text x="911.1" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Bumps</text>
-<rect x="954.4" y="163.3" width="14" height="156.7" fill="#b91c1c" opacity="0.82"/>
-<rect x="972.4" y="157.7" width="14" height="162.3" fill="#003b71"/>
-<text x="970.4" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Other</text>
-<rect x="593" y="101" width="10" height="10" fill="#b91c1c" opacity="0.82"/>
-<text x="607.0" y="110.0" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Before gate</text>
-<rect x="685" y="101" width="10" height="10" fill="#003b71"/>
-<text x="699.0" y="110.0" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">After gate</text>
+<line x1="80" y1="320" x2="505" y2="320" stroke="#222222" stroke-width="1.2"/>
+<rect x="94.4" y="258.3" width="32" height="61.7" fill="#b91c1c"/>
+<line x1="110.4" y1="227.2" x2="110.4" y2="289.4" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="110.4" y="223.2" fill="#111827" font-size="8" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7474</text>
+<text x="110.4" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Before</text>
+<rect x="155.1" y="222.3" width="32" height="97.7" fill="#7a8b99"/>
+<line x1="171.1" y1="198.5" x2="171.1" y2="246.2" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="171.1" y="194.5" fill="#111827" font-size="8" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7634</text>
+<text x="171.1" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">+Units</text>
+<rect x="215.8" y="222.3" width="32" height="97.7" fill="#7a8b99"/>
+<line x1="231.8" y1="193.1" x2="231.8" y2="251.5" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="231.8" y="189.1" fill="#111827" font-size="8" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7634</text>
+<text x="231.8" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">+38Rules</text>
+<rect x="276.5" y="213.1" width="32" height="106.9" fill="#4a90c2"/>
+<line x1="292.5" y1="185.0" x2="292.5" y2="241.1" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="292.5" y="181.0" fill="#111827" font-size="8" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7675</text>
+<text x="292.5" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">+Dedup</text>
+<rect x="337.2" y="204.9" width="32" height="115.1" fill="#4a90c2"/>
+<line x1="353.2" y1="165.2" x2="353.2" y2="244.7" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="353.2" y="161.2" fill="#111827" font-size="8" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7711</text>
+<text x="353.2" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">+CL</text>
+<rect x="397.9" y="172.5" width="32" height="147.5" fill="#003b71"/>
+<line x1="413.9" y1="147.8" x2="413.9" y2="197.2" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="413.9" y="143.8" fill="#111827" font-size="8" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7856</text>
+<text x="413.9" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">+ET+HGB</text>
+<rect x="458.6" y="116.8" width="32" height="203.2" fill="#166534"/>
+<line x1="474.6" y1="86.2" x2="474.6" y2="147.4" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="474.6" y="82.2" fill="#111827" font-size="8" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.8103</text>
+<text x="474.6" y="335.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Oracle</text>
+<text x="555.0" y="80.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">b</text>
+<text x="571.0" y="80.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">D04 MatBench yield-strength MAE (official 5 folds)</text>
+<line x1="605" y1="320.0" x2="1020" y2="320.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="324.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0</text>
+<line x1="605" y1="276.7" x2="1020" y2="276.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="280.7" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">100</text>
+<line x1="605" y1="233.5" x2="1020" y2="233.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="237.5" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">200</text>
+<line x1="605" y1="190.2" x2="1020" y2="190.2" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="194.2" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">300</text>
+<line x1="605" y1="146.9" x2="1020" y2="146.9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="150.9" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">400</text>
+<line x1="605" y1="103.7" x2="1020" y2="103.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="107.7" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">500</text>
+<line x1="605" y1="95" x2="605" y2="320" stroke="#222222" stroke-width="1.2"/>
+<line x1="605" y1="320" x2="1020" y2="320" stroke="#222222" stroke-width="1.2"/>
+<rect x="642.2" y="124.3" width="64" height="195.7" fill="#b91c1c"/>
+<line x1="674.2" y1="101.4" x2="674.2" y2="147.3" stroke="#1a1a1a" stroke-width="1.2"/>
+<text x="674.2" y="96.4" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">452.20 MPa</text>
+<text x="674.2" y="336.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Before Gate (ksi/GPa/NaN)</text>
+<rect x="780.5" y="284.5" width="64" height="35.5" fill="#003b71"/>
+<line x1="812.5" y1="280.1" x2="812.5" y2="288.9" stroke="#1a1a1a" stroke-width="1.2"/>
+<text x="812.5" y="275.1" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">82.14 MPa</text>
+<text x="812.5" y="336.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">After Gate (SteelGate D04)</text>
+<rect x="918.8" y="285.8" width="64" height="34.2" fill="#4a90c2"/>
+<line x1="950.8" y1="282.1" x2="950.8" y2="289.5" stroke="#1a1a1a" stroke-width="1.2"/>
+<text x="950.8" y="277.1" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">79.09 MPa</text>
+<text x="950.8" y="336.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Clean Oracle (MatBench)</text>
+<text x="563.0" y="207.5" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" transform="rotate(-90.0 563.0 207.5)">MAE (MPa, lower is better)</text>
 <text x="36.0" y="400.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">c</text>
-<text x="52.0" y="400.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Corrupt-copy violations caught by rule category</text>
-<line x1="165" y1="420" x2="165" y2="640" stroke="#222222" stroke-width="1.2"/>
-<line x1="165" y1="640" x2="480" y2="640" stroke="#222222" stroke-width="1.2"/>
-<rect x="165" y="426.0" width="265.0" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="441.4" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Unit &amp; Range</text>
-<text x="436.0" y="441.4" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">388 row-checks</text>
-<rect x="165" y="457.4" width="166.6" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="472.9" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Math Invariant</text>
-<text x="337.6" y="472.9" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">244 row-checks</text>
-<rect x="165" y="488.9" width="54.0" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="504.3" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Domain &amp; Nulls</text>
-<text x="225.0" y="504.3" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">79 row-checks</text>
-<rect x="165" y="520.3" width="47.1" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="535.7" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Luminosity Bounds</text>
-<text x="218.1" y="535.7" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">69 row-checks</text>
-<rect x="165" y="551.7" width="40.3" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="567.1" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Label Integrity</text>
-<text x="211.3" y="567.1" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">59 row-checks</text>
-<rect x="165" y="583.1" width="36.2" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="598.6" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Geometry Physics</text>
-<text x="207.2" y="598.6" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">53 row-checks</text>
-<rect x="165" y="614.6" width="25.3" height="21.4" fill="#4a90c2"/>
-<text x="157.0" y="630.0" fill="#111827" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Physical Conservation</text>
-<text x="196.3" y="630.0" fill="#4b5563" font-size="8.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">37 row-checks</text>
-<text x="540.0" y="400.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">d</text>
-<text x="556.0" y="400.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">R09 mill-campaign leakage: Stratified vs. Grouped CV (239 campaigns)</text>
-<line x1="585" y1="640.0" x2="1000" y2="640.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="644.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.5</text>
-<line x1="585" y1="585.0" x2="1000" y2="585.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="589.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.6</text>
-<line x1="585" y1="530.0" x2="1000" y2="530.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="534.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7</text>
-<line x1="585" y1="475.0" x2="1000" y2="475.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="479.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.8</text>
-<line x1="585" y1="420.0" x2="1000" y2="420.0" stroke="#e5e7eb" stroke-width="1"/>
-<text x="577.0" y="424.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.9</text>
-<line x1="585" y1="420" x2="585" y2="640" stroke="#222222" stroke-width="1.2"/>
-<line x1="585" y1="640" x2="1000" y2="640" stroke="#222222" stroke-width="1.2"/>
-<rect x="614.9" y="486.4" width="44" height="153.6" fill="#7a8b99"/>
-<line x1="636.9" y1="480.4" x2="636.9" y2="492.4" stroke="#1a1a1a" stroke-width="1.3"/>
-<text x="636.9" y="475.4" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7793</text>
-<text x="636.9" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Stratified Accuracy</text>
-<rect x="718.6" y="515.7" width="44" height="124.3" fill="#003b71"/>
-<line x1="740.6" y1="486.2" x2="740.6" y2="545.2" stroke="#1a1a1a" stroke-width="1.3"/>
-<text x="740.6" y="481.2" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7260</text>
-<text x="740.6" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Grouped Accuracy</text>
-<rect x="822.4" y="475.9" width="44" height="164.1" fill="#7a8b99"/>
-<line x1="844.4" y1="470.8" x2="844.4" y2="481.0" stroke="#1a1a1a" stroke-width="1.3"/>
-<text x="844.4" y="465.8" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7984</text>
-<text x="844.4" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Stratified Macro F1</text>
-<rect x="926.1" y="525.8" width="44" height="114.2" fill="#4a90c2"/>
-<line x1="948.1" y1="485.0" x2="948.1" y2="566.5" stroke="#1a1a1a" stroke-width="1.3"/>
-<text x="948.1" y="480.0" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7077</text>
-<text x="948.1" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Grouped Macro F1</text>
-<text x="36.0" y="700.0" fill="#4b5563" font-size="9.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Source: Computed deterministically from results/metrics.json (UCI D01 CC BY 4.0 + synthetic training-only mill corruptions). Error bars show ±1 SD across 5 seeds / 5 folds.</text>
+<text x="52.0" y="400.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">D09 Steel Energy (35,040 rows): Gate MAE &amp; temporal leakage</text>
+<line x1="80" y1="420" x2="80" y2="640" stroke="#222222" stroke-width="1.2"/>
+<line x1="80" y1="640" x2="505" y2="640" stroke="#222222" stroke-width="1.2"/>
+<rect x="107.1" y="639.7" width="52" height="0.3" fill="#c8cdd3"/>
+<text x="133.1" y="633.7" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">4.31 kWh</text>
+<text x="133.1" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Random 80/20</text>
+<rect x="213.4" y="453.6" width="52" height="186.4" fill="#b91c1c"/>
+<text x="239.4" y="447.6" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">2875.59 kWh</text>
+<text x="239.4" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Before Gate (Wh/MWh)</text>
+<rect x="319.6" y="639.7" width="52" height="0.3" fill="#003b71"/>
+<text x="345.6" y="633.7" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">5.10 kWh</text>
+<text x="345.6" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">After Gate (Chron.)</text>
+<rect x="425.9" y="639.7" width="52" height="0.3" fill="#4a90c2"/>
+<text x="451.9" y="633.7" fill="#111827" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">5.14 kWh</text>
+<text x="451.9" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Clean Oracle (Chron.)</text>
+<text x="38.0" y="530.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" transform="rotate(-90.0 38.0 530.0)">Energy MAE (kWh, lower is better)</text>
+<text x="555.0" y="400.0" fill="#003b71" font-size="13" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">d</text>
+<text x="571.0" y="400.0" fill="#111827" font-size="11" font-weight="bold" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">R09 mill-campaign leakage on D01 (239 campaigns)</text>
+<line x1="605" y1="640.0" x2="1020" y2="640.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="644.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.5</text>
+<line x1="605" y1="585.0" x2="1020" y2="585.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="589.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.6</text>
+<line x1="605" y1="530.0" x2="1020" y2="530.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="534.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7</text>
+<line x1="605" y1="475.0" x2="1020" y2="475.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="479.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.8</text>
+<line x1="605" y1="420.0" x2="1020" y2="420.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="597.0" y="424.0" fill="#4b5563" font-size="9" font-weight="normal" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.9</text>
+<line x1="605" y1="420" x2="605" y2="640" stroke="#222222" stroke-width="1.2"/>
+<line x1="605" y1="640" x2="1020" y2="640" stroke="#222222" stroke-width="1.2"/>
+<rect x="634.9" y="486.4" width="44" height="153.6" fill="#7a8b99"/>
+<line x1="656.9" y1="480.4" x2="656.9" y2="492.4" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="656.9" y="475.4" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7793</text>
+<text x="656.9" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Stratified Acc</text>
+<rect x="738.6" y="515.7" width="44" height="124.3" fill="#003b71"/>
+<line x1="760.6" y1="486.2" x2="760.6" y2="545.2" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="760.6" y="481.2" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7260</text>
+<text x="760.6" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Grouped Acc</text>
+<rect x="842.4" y="475.9" width="44" height="164.1" fill="#7a8b99"/>
+<line x1="864.4" y1="470.8" x2="864.4" y2="481.0" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="864.4" y="465.8" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7984</text>
+<text x="864.4" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Stratified F1</text>
+<rect x="946.1" y="525.8" width="44" height="114.2" fill="#4a90c2"/>
+<line x1="968.1" y1="485.0" x2="968.1" y2="566.5" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="968.1" y="480.0" fill="#111827" font-size="9" font-weight="bold" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">0.7077</text>
+<text x="968.1" y="656.0" fill="#111827" font-size="8.5" font-weight="normal" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Grouped F1</text>
+<text x="36.0" y="700.0" fill="#4b5563" font-size="9.5" font-weight="normal" text-anchor="start" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Source: Deterministic computation from results/metrics.json (D01, D04, D09 + synthetic training corruptions). Error bars show ±1 SD.</text>
 </svg>

@@ -1,6 +1,6 @@
-# Machine-readable inventory of datasets used by Case 02.
+# Machine-readable inventory of datasets used by Case 02 (v0.7.0 multi-database data lake).
 # `steelgate.loaders.load_catalog` validates this inventory at runtime.
-version: 1
+version: 2
 updated: 2026-11-27
 evidence_level: A
 datasets:
@@ -19,6 +19,7 @@ datasets:
     n_features: 27
     n_targets: 7
     schema: uci_steel_plates_v1
+    n_rules: 38
     fault_classes:
       - Pastry
       - Z_Scratch
@@ -28,35 +29,61 @@ datasets:
       - Bumps
       - Other_Faults
     canonical_units:
-      X_Minimum: pixel
-      X_Maximum: pixel
-      Y_Minimum: pixel
-      Y_Maximum: pixel
-      Pixels_Areas: pixel^2
-      X_Perimeter: pixel
-      Y_Perimeter: pixel
-      Sum_of_Luminosity: intensity*pixel^2
-      Minimum_of_Luminosity: intensity
-      Maximum_of_Luminosity: intensity
-      Length_of_Conveyer: pixel
       Steel_Plate_Thickness: mm
-      Edges_Index: dimensionless
-      Empty_Index: dimensionless
-      Square_Index: dimensionless
-      Outside_X_Index: dimensionless
-      Edges_X_Index: dimensionless
-      Edges_Y_Index: dimensionless
-      Outside_Global_Index: dimensionless
-      LogOfAreas: log10(pixel^2)
-      Log_X_Index: log10(pixel)
-      Log_Y_Index: log10(pixel)
-      Orientation_Index: dimensionless
-      Luminosity_Index: dimensionless
-      SigmoidOfAreas: dimensionless
+      Pixels_Areas: pixel^2
+      Length_of_Conveyer: pixel
     notes: >-
       Raw D01 has 1,941 rows. Unmodified rows 518 and 591 violate physical
-      luminosity conservation (Sum_of_Luminosity < Pixels_Areas * Minimum_of_Luminosity);
-      curated D01 contains 1,939 rows passing all 38 schema and physical rules.
+      luminosity conservation (R38); curated D01 contains 1,939 rows passing all 38 rules.
+
+  - id: D04
+    name: matbench_steels
+    title: MatBench Yield Strength of Steels
+    file: matbench_steels.json.gz
+    splits_file: steels_splits.json
+    url: https://github.com/materialsproject/matbench/blob/main/benchmarks/matbench_v0.1_Atomic_Affine_QRF/inputs/matbench_steels.json.gz
+    splits_url: https://github.com/materialsproject/matbench/blob/main/benchmarks/matbench_v0.1_Atomic_Affine_QRF/inputs/steels_splits.json
+    doi: 10.1038/s41524-020-00406-3
+    license: Public benchmark (Dunn et al., 2020)
+    access_date: "2026-11-27"
+    sha256: 473bc4957b2ea5e6465aef84bc29bb48ac34db27d69ea4ec5f508745c6fae252
+    bytes: 8836
+    splits_sha256: ef3bc6cf09ec08a23a8d0a6f1e04c0e2108296644d5e522abd8900f55e2b1a4f
+    splits_bytes: 42676
+    n_rows: 312
+    schema: matbench_steels_v1
+    n_rules: 12
+    canonical_units:
+      yield_strength_mpa: MPa
+      composition: atomic_fraction
+    notes: >-
+      312 alloy compositions with experimental yield strength (MPa). Six raw
+      rows (21, 28, 36, 90, 91, 103) deviate from unit formula sum by >1e-3 (M12).
+
+  - id: D09
+    name: uci_steel_industry_energy_consumption
+    title: UCI Steel Industry Energy Consumption
+    file: steel_industry_energy_consumption.zip
+    inner_csv: Steel_industry_data.csv
+    url: https://archive.ics.uci.edu/static/public/851/steel+industry+energy+consumption.zip
+    catalog_url: https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
+    license: CC BY 4.0
+    access_date: "2026-11-27"
+    sha256: d82d28b33780ff1582507fcf08ae764ff648af459d58234370c551e62aadeaef
+    bytes: 481973
+    n_rows: 35040
+    schema: steel_energy_timeseries_v1
+    n_rules: 14
+    canonical_units:
+      Usage_kWh: kWh
+      Lagging_Current_Reactive.Power_kVarh: kVarh
+      Leading_Current_Reactive_Power_kVarh: kVarh
+      CO2(tCO2): tCO2
+      NSM: s
+    notes: >-
+      35,040 15-minute interval records from 2018. Raw CSV stores each day's
+      00:00 (NSM=0) row at the end of that day; chronological sorting by parsed
+      timestamp is required before forward time-series splitting.
 
   - id: D02
     name: neu_det_surface_defects

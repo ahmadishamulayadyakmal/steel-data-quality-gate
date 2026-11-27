@@ -1,7 +1,7 @@
 {
   "case": "C02",
-  "catalog_version": 1,
-  "code_fingerprint": "9555b6657b51101ae6cc6a0b95694efdae91a02e5115f23d744cf60b1ce0e4b9",
+  "catalog_version": 2,
+  "code_fingerprint": "5b5615c214c97181f48b6011674ac8f194689a59891a7f3236d9108dc906f989",
   "datasets": {
     "D01": {
       "bytes": 100890,
@@ -11,6 +11,32 @@
       "license": "CC BY 4.0",
       "sha256": "cb8eb9859198b63f053e443513036b401746fa517ef58bd17c846c6741c93919",
       "url": "https://archive.ics.uci.edu/static/public/198/steel+plates+faults.zip"
+    },
+    "D04": {
+      "bytes": 8836,
+      "doi": "10.1038/s41524-020-00406-3",
+      "file": "matbench_steels.json.gz",
+      "id": "D04",
+      "license": "Public benchmark (Dunn et al., 2020)",
+      "sha256": "473bc4957b2ea5e6465aef84bc29bb48ac34db27d69ea4ec5f508745c6fae252",
+      "url": "https://github.com/materialsproject/matbench/blob/main/benchmarks/matbench_v0.1_Atomic_Affine_QRF/inputs/matbench_steels.json.gz"
+    },
+    "D04-splits": {
+      "bytes": 42676,
+      "doi": "10.1038/s41524-020-00406-3",
+      "file": "steels_splits.json",
+      "id": "D04-splits",
+      "license": "Public benchmark (Dunn et al., 2020)",
+      "sha256": "ef3bc6cf09ec08a23a8d0a6f1e04c0e2108296644d5e522abd8900f55e2b1a4f",
+      "url": "https://github.com/materialsproject/matbench/blob/main/benchmarks/matbench_v0.1_Atomic_Affine_QRF/inputs/steels_splits.json"
+    },
+    "D09": {
+      "bytes": 481973,
+      "file": "steel_industry_energy_consumption.zip",
+      "id": "D09",
+      "license": "CC BY 4.0",
+      "sha256": "d82d28b33780ff1582507fcf08ae764ff648af459d58234370c551e62aadeaef",
+      "url": "https://archive.ics.uci.edu/static/public/851/steel+industry+energy+consumption.zip"
     }
   },
   "determinism_check": true,
@@ -33,6 +59,9 @@
   "evidence_level": "A",
   "synthetic_experiments": [
     "corrupt_copy_rejection (synthetic mill corruption of open D01)",
-    "before_after_benchmark (synthetic mill corruption of D01 training splits; evaluated on clean untouched D01 test splits)"
-  ]
+    "before_after_benchmark (synthetic corruption of D01 training splits; clean untouched D01 test splits)",
+    "d04_benchmark (synthetic corruption of D04 official training folds; clean untouched D04 test folds)",
+    "d09_benchmark (synthetic corruption of D09 chronological training window; clean untouched D09 test window)"
+  ],
+  "version": "0.7.0"
 }

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import numpy as np
@@ -65,7 +66,19 @@ UNIT_ALIASES: dict[str, str] = {
     "K": "kelvin",
     "degF": "degF",
     "F": "degF",
+    "kWh": "kilowatt_hour",
+    "kwh": "kilowatt_hour",
+    "Wh": "watt_hour",
+    "wh": "watt_hour",
+    "MWh": "megawatt_hour",
+    "mwh": "megawatt_hour",
+    "MJ": "megajoule",
+    "mj": "megajoule",
+    "GJ": "gigajoule",
+    "gj": "gigajoule",
 }
+
+_FORMULA_TOKEN_RE = re.compile(r"([A-Z][a-z]?)([0-9]*\.?[0-9]+(?:[eE][+-]?[0-9]+)?)?")
 
 
 def resolve_unit(unit: str) -> str:
@@ -112,15 +125,15 @@ def verify_round_trip(
     }
 
 
-def normalize_thickness_series(
+def normalize_series_units(
     values: pd.Series,
     units: pd.Series,
     *,
-    target_unit: str = "mm",
+    target_unit: str,
 ) -> tuple[pd.Series, dict[str, int]]:
-    """Normalize a mixed-unit thickness column into ``target_unit`` (default ``mm``).
+    """Normalize a mixed-unit numeric series into ``target_unit`` via Pint.
 
-    Preserves NaN values so downstream schema rules can explicitly flag missingness.
+    Preserves NaN values so downstream schema rules flag missingness explicitly.
     Raises ``ValueError`` on unrecognized unit labels.
     """
     dst = resolve_unit(target_unit)
@@ -136,8 +149,46 @@ def normalize_thickness_series(
         factor = float(UREG.Quantity(1.0, src).to(dst).magnitude)
         normalized.loc[mask] = subset * factor
 
-    # Any row with a missing unit label keeps NaN or assumes missing contract
     return normalized, unit_counts
+
+
+def normalize_thickness_series(
+    values: pd.Series,
+    units: pd.Series,
+    *,
+    target_unit: str = "mm",
+) -> tuple[pd.Series, dict[str, int]]:
+    """Normalize a mixed-unit plate-thickness column into ``mm`` via Pint."""
+    return normalize_series_units(values, units, target_unit=target_unit)
+
+
+def parse_formula_to_at_pct(formula: str) -> tuple[dict[str, float], float]:
+    """Parse an alloy formula string into ``(normalized_at_pct, raw_sum)``.
+
+    Raises ``ValueError`` on empty/malformed strings, unknown elements, or zero sum.
+    """
+    text = str(formula).strip()
+    if not text:
+        raise ValueError("Formula string cannot be empty")
+    tokens = _FORMULA_TOKEN_RE.findall(text)
+    reconstructed = "".join(f"{el}{num}" for el, num in tokens)
+    if not tokens or reconstructed != text:
+        raise ValueError(f"Malformed alloy formula: {formula!r}")
+
+    raw_comp: dict[str, float] = {}
+    for el, num in tokens:
+        if el not in ATOMIC_WEIGHTS:
+            raise ValueError(f"Unknown alloy element {el!r} in formula {formula!r}")
+        coeff = float(num) if num else 1.0
+        if not np.isfinite(coeff) or coeff <= 0.0:
+            raise ValueError(f"Invalid coefficient {coeff} for {el!r} in {formula!r}")
+        raw_comp[el] = raw_comp.get(el, 0.0) + coeff
+
+    raw_sum = float(sum(raw_comp.values()))
+    if raw_sum <= 0.0:
+        raise ValueError(f"Non-positive formula sum in {formula!r}")
+    at_pct = {el: 100.0 * val / raw_sum for el, val in raw_comp.items()}
+    return at_pct, raw_sum
 
 
 def check_composition_mass_balance(
@@ -208,7 +259,7 @@ def at_pct_to_wt_pct(at_pct: dict[str, float]) -> dict[str, float]:
 
 
 def run_unit_verification_suite() -> dict[str, Any]:
-    """Run deterministic Pint round-trips and alloy ``Sigma = 100%`` verification."""
+    """Run deterministic Pint round-trips (length/stress/temp/energy) and alloy checks."""
     unit_cases = [
         (40.0, "mm", "in"),
         (150.0, "mm", "cm"),
@@ -220,6 +271,9 @@ def run_unit_verification_suite() -> dict[str, Any]:
         (355.0, "MPa", "psi"),
         (920.0, "degC", "K"),
         (250.0, "degC", "degF"),
+        (42.5, "kWh", "Wh"),
+        (125.0, "kWh", "MWh"),
+        (75.0, "kWh", "MJ"),
     ]
     round_trips = [verify_round_trip(v, src, dst) for v, src, dst in unit_cases]
 
